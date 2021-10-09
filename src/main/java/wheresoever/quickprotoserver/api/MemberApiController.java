@@ -24,23 +24,18 @@ public class MemberApiController {
     private final MemberService memberService;
 
     @PostMapping
-    public GenerateMemberResponse<Long> generateMember(@RequestBody MemberSaveDto request) {
-        Map<String, Sex> sexMap = new HashMap<>();
-        sexMap.put("여성", Sex.FEMALE);
-        sexMap.put("남성", Sex.MALE);
-
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        LocalDate birthdate = LocalDate.parse(request.getBirthdate(), dateTimeFormatter);
+    public CreateMemberResponse<Long> createMember(@RequestBody CreateMemberRequest request) {
 
         Member member = new Member(request.getEmail(),
                 request.getPassword(),
-                sexMap.get(request.getSex()),
-                request.getNickname(), birthdate,
+                formatSex(request.getSex()),
+                request.getNickname(),
+                formatLocalDate(request.getBirthdate()),
                 request.getMetropolitan());
 
         try {
             Long memberId = memberService.join(member);
-            return new GenerateMemberResponse<>(memberId); // 추후 sessionToken 발급하는 형식으로 변경하기.
+            return new CreateMemberResponse<>(memberId); // 추후 sessionToken 발급하는 형식으로 변경하기.
         } catch (IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.OK, "해당 이메일은 이미 존재합니다.");
         }
@@ -48,7 +43,7 @@ public class MemberApiController {
 
     @Data
     @NoArgsConstructor
-    static class MemberSaveDto {
+    static class CreateMemberRequest {
         private String email;
         private String password;
         private String sex;
@@ -59,20 +54,100 @@ public class MemberApiController {
 
     @Data
     @AllArgsConstructor
-    static class GenerateMemberResponse<T> {
+    static class CreateMemberResponse<T> {
         private T token;
     }
 
-    @DeleteMapping("/{memberId}")
-    public WithdrawnMemberResponse<Boolean> withdrawnMember(@PathVariable Long memberId, String reason) {
-        Boolean state = memberService.withdrawnMember(memberId, reason);
-        return new WithdrawnMemberResponse<>(state);
+    @GetMapping("/{memberId}")
+    public ReadMemberResponse readMember(@PathVariable Long memberId) {
+        Member member;
+        try {
+            member = memberService.findMember(memberId);
+        } catch (IllegalStateException e) {
+            throw new ResponseStatusException(HttpStatus.OK, "없는 계정입니다.");
+        }
+
+        return new ReadMemberResponse(
+                formatSex(member.getSex()),
+                member.getNickname(),
+                formatLocalDate(member.getBirthdate()),
+                member.getMetropolitan()
+        );
     }
 
     @Data
     @AllArgsConstructor
-    static class WithdrawnMemberResponse<T>{
+    static class ReadMemberResponse {
+        private String sex;
+        private String nickname;
+        private String birthdate;
+        private String metropolitan;
+    }
+
+    @PatchMapping("/{memberId}")
+    public UpdateMemberResponse<Boolean> updateMember(@PathVariable Long memberId, UpdateMemberRequest request) {
+        Member member;
+        try {
+            memberService.updateMember(memberId,
+                    formatSex(request.getSex()),
+                    request.getNickname(),
+                    formatLocalDate(request.getBirthdate()),
+                    request.getMetropolitan());
+        } catch (IllegalStateException e) {
+            throw new ResponseStatusException(HttpStatus.OK, "없는 계정입니다.");
+        }
+
+        return new UpdateMemberResponse<>(true);
+    }
+
+    @Data
+    @NoArgsConstructor
+    static class UpdateMemberRequest {
+        private String sex;
+        private String nickname;
+        private String birthdate;
+        private String metropolitan;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class UpdateMemberResponse<T> {
         private T ok;
     }
 
+
+    @DeleteMapping("/{memberId}")
+    public DeleteMemberResponse<Boolean> deleteMember(@PathVariable Long memberId, String reason) {
+        Boolean state = memberService.withdrawnMember(memberId, reason);
+        return new DeleteMemberResponse<>(state);
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class DeleteMemberResponse<T> {
+        private T ok;
+    }
+
+    public Sex formatSex(String sex) {
+        Map<String, Sex> sexMap = new HashMap<>();
+        sexMap.put("여성", Sex.FEMALE);
+        sexMap.put("남성", Sex.MALE);
+        return sexMap.get(sex);
+    }
+
+    public String formatSex(Sex sex) {
+        Map<Sex, String> sexMap = new HashMap<>();
+        sexMap.put(Sex.FEMALE, "여성");
+        sexMap.put(Sex.MALE, "남성");
+        return sexMap.get(sex);
+    }
+
+    public LocalDate formatLocalDate(String birthdate) {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        return LocalDate.parse(birthdate, dateTimeFormatter);
+    }
+
+    public String formatLocalDate(LocalDate birthdate) {
+        return birthdate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+    }
 }

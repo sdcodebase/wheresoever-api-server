@@ -26,7 +26,7 @@ class MemberServiceTest {
     @Test
     public void 멤버_회원가입() throws Exception {
         //given
-        Member m1 = new Member("sdkim@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울특별시");
+        Member m1 = new Member("sdkim@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울");
 
         //when
         Long m1Id = memberService.join(m1);
@@ -40,11 +40,11 @@ class MemberServiceTest {
     @Test
     public void 멤버_회원가입_중복이름() throws Exception {
         //given
-        Member m1 = new Member("sdkim@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울특별시");
+        Member m1 = new Member("sdkim@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울");
         Long memberId = memberService.join(m1);
 
         //when
-        Member m2 = new Member("sdkim@gmail.com", "111", Sex.FEMALE, "sdsd", LocalDate.now(), "경기도");
+        Member m2 = new Member("sdkim@gmail.com", "111", Sex.FEMALE, "sdsd", LocalDate.now(), "경기");
 
         //then
         assertThrows(IllegalStateException.class, () -> {
@@ -53,9 +53,27 @@ class MemberServiceTest {
     }
 
     @Test
+    public void 멤버_정보_수정() throws Exception {
+        // given
+        Member m1 = new Member("sdkim@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울");
+        Long memberId = memberService.join(m1);
+
+        // when
+        memberService.updateMember(memberId, Sex.FEMALE, "aaaa", LocalDate.parse("2014-10-29"), "전남");
+
+        // then
+        Member actual = memberService.findMember(memberId);
+        assertEquals(Sex.FEMALE, actual.getSex());
+        assertEquals("aaaa", actual.getNickname());
+        assertEquals(LocalDate.parse("2014-10-29"), actual.getBirthdate());
+        assertEquals("전남", actual.getMetropolitan());
+
+    }
+
+    @Test
     public void 멤버_탈퇴() throws Exception {
         //given
-        Member m1 = new Member("sdkim@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울특별시");
+        Member m1 = new Member("sdkim@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울");
         Long memberId = memberService.join(m1);
 
         //when
