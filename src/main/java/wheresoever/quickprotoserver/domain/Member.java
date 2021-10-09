@@ -42,6 +42,22 @@ public class Member {
         this.metropolitan = metropolitan;
     }
 
+    public void setSex(Sex sex) {
+        this.sex = sex;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setBirthdate(LocalDate birthdate) {
+        this.birthdate = birthdate;
+    }
+
+    public void setMetropolitan(String metropolitan) {
+        this.metropolitan = metropolitan;
+    }
+
     // 연관관계 편의 메서드
     public void withdraw(Withdrawn withdrawn) {
         this.withdrawn = withdrawn;
