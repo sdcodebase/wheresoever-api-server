@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "members")
@@ -17,14 +18,34 @@ public class Member {
     @Column(name = "member_id")
     private Long id;
 
-    private String username;
-    private int age;
-    private String introduce;
+    private String email;
+    private String password;
 
+    @Enumerated(EnumType.STRING)
+    private Sex sex;
 
-    public Member(String username, int age, String introduce) {
-        this.username = username;
-        this.age = age;
-        this.introduce = introduce;
+    private String nickname;
+
+    private LocalDate birthdate;
+
+    private String metropolitan;
+
+    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
+    private Withdrawn withdrawn;
+
+    public Member(String email, String password, Sex sex, String nickname, LocalDate birthdate, String metropolitan) {
+        this.email = email;
+        this.password = password;
+        this.sex = sex;
+        this.nickname = nickname;
+        this.birthdate = birthdate;
+        this.metropolitan = metropolitan;
     }
+
+    // 연관관계 편의 메서드
+    public void withdraw(Withdrawn withdrawn) {
+        this.withdrawn = withdrawn;
+        withdrawn.setMember(this);
+    }
+
 }
