@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "members")
@@ -18,6 +21,15 @@ public class Member {
     @Column(name = "member_id")
     private Long id;
 
+    @Column(name = "canceled_at")
+    private LocalDateTime canceledAt;
+
+    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
+    private Withdrawn withdrawn;
+
+    @OneToMany(mappedBy = "member")
+    private List<Post> posts = new ArrayList<>();
+
     private String email;
     private String password;
 
@@ -29,9 +41,6 @@ public class Member {
     private LocalDate birthdate;
 
     private String metropolitan;
-
-    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
-    private Withdrawn withdrawn;
 
     public Member(String email, String password, Sex sex, String nickname, LocalDate birthdate, String metropolitan) {
         this.email = email;
