@@ -38,6 +38,4 @@ public class Comment {
 
     private LocalDateTime at;
 
-    @Column(name = "like_count")
-    private Long likeCount;
 }

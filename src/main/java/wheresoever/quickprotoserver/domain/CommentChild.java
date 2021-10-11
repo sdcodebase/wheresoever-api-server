@@ -33,6 +33,4 @@ public class CommentChild {
 
     private LocalDateTime at;
 
-    @Column(name = "like_count")
-    private Long likeCount;
 }
