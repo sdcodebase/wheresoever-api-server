@@ -115,13 +115,6 @@ public class MemberApiController {
         private T ok;
     }
 
-
-    @DeleteMapping("/{memberId}")
-    public DeleteMemberResponse<Boolean> deleteMember(@PathVariable Long memberId, String reason) {
-        Boolean state = memberService.withdrawnMember(memberId, reason);
-        return new DeleteMemberResponse<>(state);
-    }
-
     @Data
     @AllArgsConstructor
     static class DeleteMemberResponse<T> {

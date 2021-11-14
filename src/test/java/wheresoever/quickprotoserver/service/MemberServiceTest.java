@@ -69,18 +69,4 @@ class MemberServiceTest {
         assertEquals("전남", actual.getMetropolitan());
 
     }
-
-    @Test
-    public void 멤버_탈퇴() throws Exception {
-        //given
-        Member m1 = new Member("sdkim@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울");
-        Long memberId = memberService.join(m1);
-
-        //when
-        Boolean aBoolean = memberService.withdrawnMember(memberId, "그냥");
-        Member withdrawnMember = memberRepository.findById(memberId).get();
-
-        //then
-        Assertions.assertThat(withdrawnMember.getWithdrawn().getMember()).isEqualTo(m1);
-    }
 }

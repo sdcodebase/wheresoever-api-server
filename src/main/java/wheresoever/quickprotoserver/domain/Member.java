@@ -24,8 +24,6 @@ public class Member {
     @Column(name = "canceled_at")
     private LocalDateTime canceledAt;
 
-    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
-    private Withdrawn withdrawn;
 
     @OneToMany(mappedBy = "member")
     private List<Post> posts = new ArrayList<>();
@@ -65,12 +63,6 @@ public class Member {
 
     public void setMetropolitan(String metropolitan) {
         this.metropolitan = metropolitan;
-    }
-
-    // 연관관계 편의 메서드
-    public void withdraw(Withdrawn withdrawn) {
-        this.withdrawn = withdrawn;
-        withdrawn.setMember(this);
     }
 
 }

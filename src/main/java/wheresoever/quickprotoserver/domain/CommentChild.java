@@ -33,4 +33,24 @@ public class CommentChild {
 
     private LocalDateTime at;
 
+
+    /*생성 메서드*/
+    public CommentChild(Member member, Comment comment, String content) {
+        this.member = member;
+
+        this.comment = comment;
+        comment.getCommentChildren().add(this);
+
+        this.content = content;
+        this.at = LocalDateTime.now();
+    }
+
+    public void recomment(String content) {
+        this.content = content;
+    }
+
+    public void delete() {
+        //페이즈2에서 deletedAt 추가하고 여기로 할당하기
+        this.canceledAt = LocalDateTime.now();
+    }
 }
