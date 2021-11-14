@@ -3,6 +3,7 @@ package wheresoever.quickprotoserver.domain;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -39,4 +40,16 @@ public class Post {
     private Category category;
 
     private LocalDateTime at;
+
+    /*생성 메서드*/
+    public Post(Member member, String content, Category category) {
+        this.member = member;
+        this.content = content;
+        this.category = category;
+        this.at = LocalDateTime.now();
+    }
+
+    public void delete() {
+        this.canceledAt = LocalDateTime.now();
+    }
 }

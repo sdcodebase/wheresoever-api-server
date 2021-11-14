@@ -1,13 +1,13 @@
 package wheresoever.quickprotoserver.domain;
 
+import com.google.common.collect.Multiset;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Getter
@@ -33,11 +33,28 @@ public class Comment {
 
     @OneToMany(mappedBy = "comment")
     private List<CommentChild> commentChildren = new ArrayList<>();
+//    private Set<CommentChild> commentChildren = new HashSet<>();
 
     private String content;
 
     private LocalDateTime at;
 
-    @Column(name = "like_count")
-    private Long likeCount;
+    /*생성 메서드*/
+    public Comment(Member member, Post post, String content) {
+        this.member = member;
+
+        this.post = post;
+        post.getComments().add(this);
+
+        this.content = content;
+        this.at = LocalDateTime.now();
+    }
+
+    public void recomment(String content) {
+        this.content = content;
+    }
+
+    public void delete() {
+        this.canceledAt = LocalDateTime.now();
+    }
 }
