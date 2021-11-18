@@ -29,4 +29,10 @@ public class Follow {
     private Member follower; // member를 팔로우 하는 사람
 
     private LocalDateTime at;
+
+    public Follow(Member member, Member follower) {
+        this.member = member;
+        this.follower = follower;
+        this.at = LocalDateTime.now();
+    }
 }
