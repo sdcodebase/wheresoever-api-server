@@ -1,6 +1,5 @@
 package wheresoever.quickprotoserver.service;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +15,8 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 @SpringBootTest
@@ -98,7 +98,7 @@ class FollowServiceTest {
         //when
         followService.follow(member1.getId(), follower.getId());
         followService.follow(member2.getId(), follower.getId());
-        
+
         //then
         List<Follow> followings = followService.getFollowings(follower.getId());
     }

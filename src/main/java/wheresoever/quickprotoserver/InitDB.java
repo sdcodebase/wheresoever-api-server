@@ -13,7 +13,7 @@ import wheresoever.quickprotoserver.service.PostService;
 import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 
-@Component
+//@Component
 @RequiredArgsConstructor
 public class InitDB {
     private final MemberService memberService;
@@ -21,7 +21,7 @@ public class InitDB {
     private final CommentService commentService;
     private final CommentChildService commentChildService;
 
-//    @PostConstruct
+    @PostConstruct
     public void init() {
         Member postMember = new Member("aaa@gmail", "213", Sex.MALE, "헤헤", LocalDate.now(), "서울");
         Long postMemberId = memberService.join(postMember);
