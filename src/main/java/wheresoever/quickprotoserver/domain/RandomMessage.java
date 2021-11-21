@@ -34,4 +34,16 @@ public class RandomMessage {
     private LocalDateTime at;
 
     private int grade;
+
+    /*생성 메서드*/
+    public RandomMessage(Member sender, Member receiver, String content) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.content = content;
+        this.at = LocalDateTime.now();
+    }
+
+    public void grading(int grade) {
+        this.grade = grade;
+    }
 }
