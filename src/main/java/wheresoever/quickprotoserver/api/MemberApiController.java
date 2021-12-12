@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import wheresoever.quickprotoserver.api.argumeentresolver.Session;
 import wheresoever.quickprotoserver.api.constant.SessionConst;
 import wheresoever.quickprotoserver.domain.Member;
 import wheresoever.quickprotoserver.domain.Sex;
@@ -127,8 +128,19 @@ public class MemberApiController {
         private String metropolitan;
     }
 
+    /**
+     * TODO
+     * sessionMemberId != memberId인 경우 throw Exception --> 공통처리로직 고안 (AOP, Interceptor, resolver...)
+     */
     @PatchMapping("/{memberId}")
-    public UpdateMemberResponse<Boolean> updateMember(@PathVariable Long memberId, @RequestBody UpdateMemberRequest request) {
+    public UpdateMemberResponse<Boolean> updateMember(@Session Long sessionMemberId, @PathVariable Long memberId
+            , @RequestBody UpdateMemberRequest request) {
+
+        if (!sessionMemberId.equals(memberId)) {
+            log.error("mismatch session[{}] and pathParams[{}]", sessionMemberId, memberId);
+            return new UpdateMemberResponse<>(false);
+        }
+
         try {
             memberService.updateMember(memberId,
                     formatSex(request.getSex()),
