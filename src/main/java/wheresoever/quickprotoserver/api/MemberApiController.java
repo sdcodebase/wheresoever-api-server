@@ -15,7 +15,6 @@ import wheresoever.quickprotoserver.domain.Sex;
 import wheresoever.quickprotoserver.service.MemberService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -36,7 +35,7 @@ public class MemberApiController {
      * - Session management Storage 변경 In-memory -> Redis
      */
     @PostMapping("/login")
-    public CreateMemberResponse<String> login(@RequestBody LoginMemberRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
+    public CreateMemberResponse<String> login(@RequestBody LoginMemberRequest loginRequest, HttpServletRequest request) {
         Member member = memberService.findMemberByEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword());
         if (member == null) {
             return new CreateMemberResponse<>("NULL");
@@ -68,18 +67,31 @@ public class MemberApiController {
     }
 
     @PostMapping
-    public CreateMemberResponse<Long> createMember(@RequestBody CreateMemberRequest request) {
+    public CreateMemberResponse<String> signUp(@RequestBody CreateMemberRequest createRequest, HttpServletRequest request) {
 
-        Member member = new Member(request.getEmail(),
-                request.getPassword(),
-                formatSex(request.getSex()),
-                request.getNickname(),
-                formatLocalDate(request.getBirthdate()),
-                request.getMetropolitan());
+        Member member = new Member(createRequest.getEmail(),
+                createRequest.getPassword(),
+                formatSex(createRequest.getSex()),
+                createRequest.getNickname(),
+                formatLocalDate(createRequest.getBirthdate()),
+                createRequest.getMetropolitan());
 
         try {
             Long memberId = memberService.join(member);
-            return new CreateMemberResponse<>(memberId); // 추후 sessionToken 발급하는 형식으로 변경하기.
+
+            // 혹시 쿠키에 있는 세션토큰이 유효하면 삭제 --> 자동으로 로그인 처리 되기 때문에 이전 계정 로그아웃
+            HttpSession currentSession = request.getSession(false);
+            if (currentSession != null) {
+                log.info("Expire current session: {}", currentSession.getId());
+                currentSession.invalidate();
+            }
+
+            HttpSession newSession = request.getSession();
+            newSession.setAttribute(SessionConst.SESSION_MEMBER_ID, memberId);
+
+            log.info("Issue session: {}", newSession.getId());
+
+            return new CreateMemberResponse<>(newSession.getId());
         } catch (IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.OK, "해당 이메일은 이미 존재합니다.");
         }
