@@ -4,13 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import wheresoever.quickprotoserver.api.constant.SessionConst;
 import wheresoever.quickprotoserver.domain.Member;
 import wheresoever.quickprotoserver.domain.Sex;
 import wheresoever.quickprotoserver.service.MemberService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -19,9 +24,47 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
+@Slf4j
 public class MemberApiController {
 
     private final MemberService memberService;
+
+    /**
+     * TODO
+     * -  로그인 실패시 throw Exception
+     * - Session management Storage 변경 In-memory -> Redis
+     */
+    @PostMapping("/login")
+    public CreateMemberResponse<String> login(@RequestBody LoginMemberRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
+        Member member = memberService.findMemberByEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword());
+        if (member == null) {
+            return new CreateMemberResponse<>("NULL");
+        }
+
+        HttpSession prevSession = request.getSession(false);
+
+        if (prevSession != null) {
+            // 이미 해당 세션이 있는데 로그인 시도하는 경우 --> 이전 세션 삭제
+            // 중복로그인을 막을 수 있다.
+            log.info("There is valid Session. expire previous session: {}", prevSession.getId());
+            prevSession.invalidate();
+        }
+
+        HttpSession newSession = request.getSession();
+        newSession.setAttribute(SessionConst.SESSION_MEMBER_ID, member.getId());
+
+        String sessionId = newSession.getId();
+        log.info("Issue session: {}", sessionId);
+
+        return new CreateMemberResponse<>(sessionId);
+    }
+
+    @Data
+    @NoArgsConstructor
+    static class LoginMemberRequest {
+        private String email;
+        private String password;
+    }
 
     @PostMapping
     public CreateMemberResponse<Long> createMember(@RequestBody CreateMemberRequest request) {
@@ -85,8 +128,7 @@ public class MemberApiController {
     }
 
     @PatchMapping("/{memberId}")
-    public UpdateMemberResponse<Boolean> updateMember(@PathVariable Long memberId, UpdateMemberRequest request) {
-        Member member;
+    public UpdateMemberResponse<Boolean> updateMember(@PathVariable Long memberId, @RequestBody UpdateMemberRequest request) {
         try {
             memberService.updateMember(memberId,
                     formatSex(request.getSex()),
