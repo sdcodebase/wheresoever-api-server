@@ -32,7 +32,6 @@ public class MemberApiController {
     /**
      * TODO
      * -  로그인 실패시 throw Exception
-     * - Session management Storage 변경 In-memory -> Redis
      */
     @PostMapping("/login")
     public CreateMemberResponse<String> login(@RequestBody LoginMemberRequest loginRequest, HttpServletRequest request) {
