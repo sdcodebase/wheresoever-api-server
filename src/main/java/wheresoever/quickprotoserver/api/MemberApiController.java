@@ -4,13 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import wheresoever.quickprotoserver.api.argumeentresolver.Session;
+import wheresoever.quickprotoserver.api.constant.SessionConst;
 import wheresoever.quickprotoserver.domain.Member;
 import wheresoever.quickprotoserver.domain.Sex;
 import wheresoever.quickprotoserver.service.MemberService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -19,23 +24,73 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
+@Slf4j
 public class MemberApiController {
 
     private final MemberService memberService;
 
-    @PostMapping
-    public CreateMemberResponse<Long> createMember(@RequestBody CreateMemberRequest request) {
+    /**
+     * TODO
+     * -  로그인 실패시 throw Exception
+     */
+    @PostMapping("/login")
+    public CreateMemberResponse<String> login(@RequestBody LoginMemberRequest loginRequest, HttpServletRequest request) {
+        Member member = memberService.findMemberByEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword());
+        if (member == null) {
+            return new CreateMemberResponse<>("NULL");
+        }
 
-        Member member = new Member(request.getEmail(),
-                request.getPassword(),
-                formatSex(request.getSex()),
-                request.getNickname(),
-                formatLocalDate(request.getBirthdate()),
-                request.getMetropolitan());
+        HttpSession prevSession = request.getSession(false);
+
+        if (prevSession != null) {
+            // 이미 해당 세션이 있는데 로그인 시도하는 경우 --> 이전 세션 삭제
+            // 중복로그인을 막을 수 있다.
+            log.info("There is valid Session. expire previous session: {}", prevSession.getId());
+            prevSession.invalidate();
+        }
+
+        HttpSession newSession = request.getSession();
+        newSession.setAttribute(SessionConst.SESSION_MEMBER_ID, member.getId());
+
+        String sessionId = newSession.getId();
+        log.info("Issue session: {}", sessionId);
+
+        return new CreateMemberResponse<>(sessionId);
+    }
+
+    @Data
+    @NoArgsConstructor
+    static class LoginMemberRequest {
+        private String email;
+        private String password;
+    }
+
+    @PostMapping
+    public CreateMemberResponse<String> signUp(@RequestBody CreateMemberRequest createRequest, HttpServletRequest request) {
+
+        Member member = new Member(createRequest.getEmail(),
+                createRequest.getPassword(),
+                formatSex(createRequest.getSex()),
+                createRequest.getNickname(),
+                formatLocalDate(createRequest.getBirthdate()),
+                createRequest.getMetropolitan());
 
         try {
             Long memberId = memberService.join(member);
-            return new CreateMemberResponse<>(memberId); // 추후 sessionToken 발급하는 형식으로 변경하기.
+
+            // 혹시 쿠키에 있는 세션토큰이 유효하면 삭제 --> 자동으로 로그인 처리 되기 때문에 이전 계정 로그아웃
+            HttpSession currentSession = request.getSession(false);
+            if (currentSession != null) {
+                log.info("Expire current session: {}", currentSession.getId());
+                currentSession.invalidate();
+            }
+
+            HttpSession newSession = request.getSession();
+            newSession.setAttribute(SessionConst.SESSION_MEMBER_ID, memberId);
+
+            log.info("Issue session: {}", newSession.getId());
+
+            return new CreateMemberResponse<>(newSession.getId());
         } catch (IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.OK, "해당 이메일은 이미 존재합니다.");
         }
@@ -84,9 +139,19 @@ public class MemberApiController {
         private String metropolitan;
     }
 
+    /**
+     * TODO
+     * sessionMemberId != memberId인 경우 throw Exception --> 공통처리로직 고안 (AOP, Interceptor, resolver...)
+     */
     @PatchMapping("/{memberId}")
-    public UpdateMemberResponse<Boolean> updateMember(@PathVariable Long memberId, UpdateMemberRequest request) {
-        Member member;
+    public UpdateMemberResponse<Boolean> updateMember(@Session Long sessionMemberId, @PathVariable Long memberId
+            , @RequestBody UpdateMemberRequest request) {
+
+        if (!sessionMemberId.equals(memberId)) {
+            log.error("mismatch session[{}] and pathParams[{}]", sessionMemberId, memberId);
+            return new UpdateMemberResponse<>(false);
+        }
+
         try {
             memberService.updateMember(memberId,
                     formatSex(request.getSex()),
