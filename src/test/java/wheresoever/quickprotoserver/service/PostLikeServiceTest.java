@@ -5,9 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import wheresoever.quickprotoserver.domain.*;
-import wheresoever.quickprotoserver.repository.post.PostRepository;
-import wheresoever.quickprotoserver.repository.postlike.PostLikeRepository;
+import wheresoever.quickprotoserver.domain.member.application.MemberService;
+import wheresoever.quickprotoserver.domain.post.application.PostService;
+import wheresoever.quickprotoserver.domain.postlike.application.PostLikeService;
+import wheresoever.quickprotoserver.domain.postlike.domain.PostLike;
+import wheresoever.quickprotoserver.domain.model.Sex;
+import wheresoever.quickprotoserver.domain.member.domain.Member;
+import wheresoever.quickprotoserver.domain.model.Category;
+import wheresoever.quickprotoserver.domain.post.dao.PostRepository;
+import wheresoever.quickprotoserver.domain.postlike.dao.PostLikeRepository;
 
 import java.time.LocalDate;
 

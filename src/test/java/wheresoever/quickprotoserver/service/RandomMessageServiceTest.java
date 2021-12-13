@@ -5,11 +5,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import wheresoever.quickprotoserver.domain.Member;
-import wheresoever.quickprotoserver.domain.RandomMessage;
-import wheresoever.quickprotoserver.domain.Sex;
-import wheresoever.quickprotoserver.repository.member.MemberRepository;
-import wheresoever.quickprotoserver.repository.randommessage.RandomMessageRepository;
+import wheresoever.quickprotoserver.domain.member.domain.Member;
+import wheresoever.quickprotoserver.domain.randommessage.application.RandomMessageService;
+import wheresoever.quickprotoserver.domain.randommessage.domain.RandomMessage;
+import wheresoever.quickprotoserver.domain.model.Sex;
+import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
+import wheresoever.quickprotoserver.domain.randommessage.dao.RandomMessageRepository;
 
 import java.time.LocalDate;
 
