@@ -4,19 +4,24 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-import wheresoever.quickprotoserver.domain.*;
-import wheresoever.quickprotoserver.dto.PostDetailDto;
-import wheresoever.quickprotoserver.repository.post.PostRepository;
-import wheresoever.quickprotoserver.repository.postlike.PostLikeRepository;
+import wheresoever.quickprotoserver.domain.comment.application.CommentService;
+import wheresoever.quickprotoserver.domain.comment.domain.Comment;
+import wheresoever.quickprotoserver.domain.commentchild.application.CommentChildService;
+import wheresoever.quickprotoserver.domain.commentchild.domain.CommentChild;
+import wheresoever.quickprotoserver.domain.member.application.MemberService;
+import wheresoever.quickprotoserver.domain.post.application.PostService;
+import wheresoever.quickprotoserver.domain.post.domain.Post;
+import wheresoever.quickprotoserver.domain.model.Sex;
+import wheresoever.quickprotoserver.domain.member.domain.Member;
+import wheresoever.quickprotoserver.domain.model.Category;
+import wheresoever.quickprotoserver.domain.post.dao.PostRepository;
+import wheresoever.quickprotoserver.domain.postlike.dao.PostLikeRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 @SpringBootTest
 @Transactional
