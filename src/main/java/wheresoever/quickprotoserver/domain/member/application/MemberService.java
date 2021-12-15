@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
+import wheresoever.quickprotoserver.domain.member.exception.MemberEmailPreviousExistsException;
+import wheresoever.quickprotoserver.domain.member.exception.MemberNotFoundException;
 import wheresoever.quickprotoserver.domain.randommessage.domain.RandomMessage;
 import wheresoever.quickprotoserver.domain.model.Sex;
 import wheresoever.quickprotoserver.domain.member.dto.SearchMemberDto;
@@ -25,30 +27,29 @@ public class MemberService {
 
     @Transactional
     public Long join(Member member) {
-        if (isDuplicatedUsername(member.getEmail())) {
-            throw new IllegalStateException("previously exists email");
+        if (isDuplicatedEmail(member.getEmail())) {
+            throw new MemberEmailPreviousExistsException();
         }
-
         memberRepository.save(member);
         return member.getId();
     }
 
     public Member findMember(Long memberId) {
-        Optional<Member> member = memberRepository.findById(memberId);
-        if (member.isEmpty()) {
-            throw new IllegalStateException("does not exist member");
+        Optional<Member> optionalMember = memberRepository.findById(memberId);
+        if (optionalMember.isEmpty()) {
+            throw new MemberNotFoundException();
         }
-        return member.get();
+        return optionalMember.get();
     }
 
     @Transactional
     public void updateMember(Long memberId, Sex sex, String nickname, LocalDate birthdate, String metropolitan) {
-        Optional<Member> optional = memberRepository.findById(memberId);
-        if (optional.isEmpty()) {
-            throw new IllegalStateException("does not exist member");
+        Optional<Member> optionalMember = memberRepository.findById(memberId);
+        if (optionalMember.isEmpty()) {
+            throw new MemberNotFoundException();
         }
 
-        Member member = optional.get();
+        Member member = optionalMember.get();
 
         if (sex != null) {
             member.setSex(sex);
@@ -67,7 +68,7 @@ public class MemberService {
         }
     }
 
-    private Boolean isDuplicatedUsername(String username) {
+    private Boolean isDuplicatedEmail(String username) {
         Optional<Member> byUsername = memberRepository.findByEmail(username);
         return byUsername.isPresent();
     }

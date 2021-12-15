@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import wheresoever.quickprotoserver.domain.follow.application.FollowService;
 import wheresoever.quickprotoserver.domain.member.application.MemberService;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
+import wheresoever.quickprotoserver.domain.member.exception.MemberEmailPreviousExistsException;
+import wheresoever.quickprotoserver.domain.member.exception.MemberNotFoundException;
 import wheresoever.quickprotoserver.domain.randommessage.application.RandomMessageService;
 import wheresoever.quickprotoserver.domain.model.Sex;
 import wheresoever.quickprotoserver.domain.member.dto.SearchMemberDto;
@@ -35,6 +37,12 @@ class MemberServiceTest {
     @Autowired
     RandomMessageService randomMessageService;
 
+    @Test
+    public void 멤버_찾기_실패() throws Exception {
+        assertThrows(MemberNotFoundException.class, () -> {
+            memberService.findMember(0L);
+        });
+    }
 
     @Test
     public void 멤버_회원가입() throws Exception {
@@ -59,7 +67,7 @@ class MemberServiceTest {
         Member m2 = new Member("sdkim@gmail.com", "111", Sex.FEMALE, "sdsd", LocalDate.now(), "경기");
 
         //then
-        assertThrows(IllegalStateException.class, () -> {
+        assertThrows(MemberEmailPreviousExistsException.class, () -> {
             memberService.join(m2); //예외발생
         });
     }

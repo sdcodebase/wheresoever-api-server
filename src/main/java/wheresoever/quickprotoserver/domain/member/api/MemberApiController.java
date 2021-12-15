@@ -5,17 +5,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import wheresoever.quickprotoserver.domain.member.application.MemberService;
+import wheresoever.quickprotoserver.domain.member.domain.Member;
+import wheresoever.quickprotoserver.domain.member.exception.MemberLoginFailException;
+import wheresoever.quickprotoserver.domain.member.exception.MemberNotFoundException;
+import wheresoever.quickprotoserver.domain.model.Sex;
 import wheresoever.quickprotoserver.global.argumeentresolver.Session;
 import wheresoever.quickprotoserver.global.constant.SessionConst;
-import wheresoever.quickprotoserver.domain.member.domain.Member;
-import wheresoever.quickprotoserver.domain.model.Sex;
-import wheresoever.quickprotoserver.domain.member.application.MemberService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -34,11 +36,11 @@ public class MemberApiController {
      * -  로그인 실패시 throw Exception
      */
     @PostMapping("/login")
-    public CreateMemberResponse<String> login(@RequestBody LoginMemberRequest loginRequest, HttpServletRequest request) {
+    public CreateMemberResponse<String> login(@Valid @RequestBody LoginMemberRequest loginRequest, HttpServletRequest request) {
 //        Member member = memberService.findMemberByEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword());
         Member member = null; // 추후 변경
         if (member == null) {
-            return new CreateMemberResponse<>("NULL");
+            throw new MemberLoginFailException();
         }
 
         HttpSession prevSession = request.getSession(false);
@@ -62,7 +64,10 @@ public class MemberApiController {
     @Data
     @NoArgsConstructor
     static class LoginMemberRequest {
+        @NotBlank
         private String email;
+
+        @NotBlank
         private String password;
     }
 
@@ -76,25 +81,21 @@ public class MemberApiController {
                 formatLocalDate(createRequest.getBirthdate()),
                 createRequest.getMetropolitan());
 
-        try {
-            Long memberId = memberService.join(member);
+        Long memberId = memberService.join(member);
 
-            // 혹시 쿠키에 있는 세션토큰이 유효하면 삭제 --> 자동으로 로그인 처리 되기 때문에 이전 계정 로그아웃
-            HttpSession currentSession = request.getSession(false);
-            if (currentSession != null) {
-                log.info("Expire current session: {}", currentSession.getId());
-                currentSession.invalidate();
-            }
-
-            HttpSession newSession = request.getSession();
-            newSession.setAttribute(SessionConst.SESSION_MEMBER_ID, memberId);
-
-            log.info("Issue session: {}", newSession.getId());
-
-            return new CreateMemberResponse<>(newSession.getId());
-        } catch (IllegalStateException e) {
-            throw new ResponseStatusException(HttpStatus.OK, "해당 이메일은 이미 존재합니다.");
+        // 혹시 쿠키에 있는 세션토큰이 유효하면 삭제 --> 자동으로 로그인 처리 되기 때문에 이전 계정 로그아웃
+        HttpSession currentSession = request.getSession(false);
+        if (currentSession != null) {
+            log.info("Expire current session: {}", currentSession.getId());
+            currentSession.invalidate();
         }
+
+        HttpSession newSession = request.getSession();
+        newSession.setAttribute(SessionConst.SESSION_MEMBER_ID, memberId);
+
+        log.info("Issue session: {}", newSession.getId());
+
+        return new CreateMemberResponse<>(newSession.getId());
     }
 
     @Data
@@ -116,12 +117,7 @@ public class MemberApiController {
 
     @GetMapping("/{memberId}")
     public ReadMemberResponse readMember(@PathVariable Long memberId) {
-        Member member;
-        try {
-            member = memberService.findMember(memberId);
-        } catch (IllegalStateException e) {
-            throw new ResponseStatusException(HttpStatus.OK, "없는 계정입니다.");
-        }
+        Member member = memberService.findMember(memberId);
 
         return new ReadMemberResponse(
                 formatSex(member.getSex()),
@@ -150,18 +146,14 @@ public class MemberApiController {
 
         if (!sessionMemberId.equals(memberId)) {
             log.error("mismatch session[{}] and pathParams[{}]", sessionMemberId, memberId);
-            return new UpdateMemberResponse<>(false);
+            throw new MemberNotFoundException();
         }
 
-        try {
-            memberService.updateMember(memberId,
-                    formatSex(request.getSex()),
-                    request.getNickname(),
-                    formatLocalDate(request.getBirthdate()),
-                    request.getMetropolitan());
-        } catch (IllegalStateException e) {
-            throw new ResponseStatusException(HttpStatus.OK, "없는 계정입니다.");
-        }
+        memberService.updateMember(memberId,
+                formatSex(request.getSex()),
+                request.getNickname(),
+                formatLocalDate(request.getBirthdate()),
+                request.getMetropolitan());
 
         return new UpdateMemberResponse<>(true);
     }
