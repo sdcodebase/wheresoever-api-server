@@ -24,8 +24,8 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .selectFrom(member)
                 .where(
                         member.metropolitan.eq(metro)
-//                        , member.birthdate.goe(age_from)
-//                        , member.birthdate.loe(age_to)
+                        , member.birthdate.goe(age_from)
+                        , member.birthdate.loe(age_to)
                 )
                 .fetch();
     }
