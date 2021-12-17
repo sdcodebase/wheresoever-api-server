@@ -8,6 +8,7 @@ public enum ErrorMessageMapper {
 
 
     ENTITY_NOT_FOUND("데이터를 찾을 수 없습니다."),
+    SESSION_NOT_FOUND("세션을 찾을 수 없습니다."),
 
     MEMBER_NOT_FOUND("해당 계정의 정보가 없습니다."),
     MEMBER_LOGIN_FAIL("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요."),

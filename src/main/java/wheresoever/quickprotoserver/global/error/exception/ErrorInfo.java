@@ -12,6 +12,7 @@ public enum ErrorInfo {
     INTERNAL_SERVER_ERROR(500, "COMMON_003", ErrorMessageMapper.ERROR_INTERNAL_SERVER_ERROR.getValue()),
 
     ENTITY_NOT_FOUND(500, "COMMON_010", ErrorMessageMapper.ENTITY_NOT_FOUND.getValue()),
+    SESSION_NOT_FOUND(400, "COMMON_011"),
 
     // Member Exception
     MEMBER_NOT_FOUND(500, "MEMBER_001"),
