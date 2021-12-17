@@ -1,4 +1,4 @@
-package wheresoever.quickprotoserver.service;
+package wheresoever.quickprotoserver.domain.comment.application;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;

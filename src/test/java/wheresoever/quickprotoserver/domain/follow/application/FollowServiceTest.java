@@ -1,4 +1,4 @@
-package wheresoever.quickprotoserver.service;
+package wheresoever.quickprotoserver.domain.follow.application;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
