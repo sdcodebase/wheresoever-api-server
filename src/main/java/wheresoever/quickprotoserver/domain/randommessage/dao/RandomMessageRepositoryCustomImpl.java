@@ -6,6 +6,7 @@ import wheresoever.quickprotoserver.domain.randommessage.domain.RandomMessage;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 
 public class RandomMessageRepositoryCustomImpl implements RandomMessageRepositoryCustom {
 
@@ -38,14 +39,16 @@ public class RandomMessageRepositoryCustomImpl implements RandomMessageRepositor
     }
 
     @Override
-    public RandomMessage getMessageByReceiverIdAndSenderId(Long receiverId, Long senderId) {
-        return queryFactory
-                .selectFrom(randomMessage)
-                .where(
-                        randomMessage.receiver.id.eq(receiverId)
-                        , randomMessage.sender.id.eq(senderId)
-                        , randomMessage.canceledAt.isNull()
-                )
-                .fetchOne();
+    public Optional<RandomMessage> getMessageByReceiverIdAndSenderId(Long receiverId, Long senderId) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(randomMessage)
+                        .where(
+                                randomMessage.receiver.id.eq(receiverId)
+                                , randomMessage.sender.id.eq(senderId)
+                                , randomMessage.canceledAt.isNull()
+                        )
+                        .fetchOne()
+        );
     }
 }

@@ -14,10 +14,15 @@ public enum ErrorInfo {
     ENTITY_NOT_FOUND(500, "COMMON_010", ErrorMessageMapper.ENTITY_NOT_FOUND.getValue()),
     SESSION_NOT_FOUND(400, "COMMON_011"),
 
+    INVALID_INPUT_VALUE(400, "COMMON_012", ErrorMessageMapper.INVALID_INPUT_VALUE.getValue()),
+
     // Member Exception
     MEMBER_NOT_FOUND(500, "MEMBER_001"),
     MEMBER_LOGIN_FAIL(200, "MEMBER_002"),
     MEMBER_EMAIL_PREVIOUS_EXISTS(200, "MEMBER_003"),
+
+    // RandomMessage Exception
+    PREV_SENT_MESSAGE(200, "RM_001"),
 
     ;
 
