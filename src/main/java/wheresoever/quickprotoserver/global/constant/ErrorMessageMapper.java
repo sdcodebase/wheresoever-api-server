@@ -18,6 +18,8 @@ public enum ErrorMessageMapper {
 
     PREV_SENT_MESSAGE("해당 멤버에게 메시지를 보낸 이력이 있습니다."),
 
+    PREV_FOLLOWED("이미 팔로우한 멤버입니다"),
+
     ;
 
     private final String message;

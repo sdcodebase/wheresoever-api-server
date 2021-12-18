@@ -1,106 +1,76 @@
 package wheresoever.quickprotoserver.domain.follow.application;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-import wheresoever.quickprotoserver.domain.follow.application.FollowService;
-import wheresoever.quickprotoserver.domain.follow.domain.Follow;
-import wheresoever.quickprotoserver.domain.member.domain.Member;
-import wheresoever.quickprotoserver.domain.model.Sex;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import wheresoever.quickprotoserver.domain.follow.AlreadyFollowedException;
 import wheresoever.quickprotoserver.domain.follow.dao.FollowRepository;
+import wheresoever.quickprotoserver.domain.follow.domain.Follow;
 import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
+import wheresoever.quickprotoserver.domain.member.domain.Member;
 
-import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
 
-
-@SpringBootTest
-@Transactional
+@ExtendWith(MockitoExtension.class)
 class FollowServiceTest {
 
-    @Autowired
-    private FollowService followService;
-
-    @Autowired
+    @Mock
     private FollowRepository followRepository;
 
-    @Autowired
+    @Mock
     private MemberRepository memberRepository;
 
-    @Autowired
-    EntityManager em;
+    @InjectMocks
+    private FollowService followService;
 
     @Test
-    public void 팔로우하기() throws Exception {
+    void 팔로우하기() {
         //given
-        Member member = memberRepository.save(new Member("sdkim@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울"));
-        Member follower = memberRepository.save(new Member("aaa@gmail.com", "1234", Sex.MALE, "sda", LocalDate.now(), "서울"));
+        Member member = Member.builder()
+                .id(1L)
+                .build();
+
+        Member follower = Member.builder()
+                .id(2L)
+                .build();
+
+        given(followRepository.getFollowByMemberIdAndFollowerId(anyLong(), anyLong())).willReturn(Optional.empty());
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(memberRepository.findById(follower.getId())).willReturn(Optional.of(follower));
+
+        Follow follow = Follow.builder()
+                .id(3L)
+                .member(member)
+                .follower(follower)
+                .build();
+
+        given(followRepository.save(any())).willReturn(follow);
 
         //when
         Long followId = followService.follow(member.getId(), follower.getId());
 
         //then
-        Follow follow = followRepository.findById(followId).get();
-
-        assertThat(follow.getFollower().getId()).isEqualTo(follower.getId());
-        assertThat(follow.getMember().getId()).isEqualTo(member.getId());
+        assertThat(followId).isEqualTo(follow.getId());
     }
 
     @Test
-    public void 이미_팔로우_했을때() throws Exception {
+    void 이미_팔로우_했을때() {
         //given
-        Member member = memberRepository.save(new Member("sdkim@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울"));
-        Member follower = memberRepository.save(new Member("aaa@gmail.com", "1234", Sex.MALE, "sda", LocalDate.now(), "서울"));
-
-        followService.follow(member.getId(), follower.getId());
+        given(followRepository.getFollowByMemberIdAndFollowerId(anyLong(), anyLong()))
+                .willReturn(Optional.of(Follow.builder().build()));
 
         //then
         assertThatThrownBy(() -> {
             //when
-            followService.follow(member.getId(), follower.getId());
-        }).isInstanceOf(IllegalStateException.class);
-    }
-
-    @Test
-    public void 팔로워_조회() throws Exception {
-        //given
-        Member member = memberRepository.save(new Member("sdkim@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울"));
-        Member follower1 = memberRepository.save(new Member("aaa@gmail.com", "1234", Sex.MALE, "sda", LocalDate.now(), "서울"));
-        Member follower2 = memberRepository.save(new Member("bbb@gmail.com", "1234", Sex.MALE, "sda", LocalDate.now(), "서울"));
-
-        followService.follow(member.getId(), follower1.getId());
-        followService.follow(member.getId(), follower2.getId());
-
-        //when
-        List<Follow> followers = followService.getFollowers(member.getId());
-
-        //then
-        List<String> emails = Arrays.asList(follower2.getEmail(), follower1.getEmail());
-        for (int i = 0; i < followers.size(); i++) {
-            Follow follow = followers.get(i);
-            assertThat(follow.getFollower().getEmail()).isEqualTo(emails.get(i));
-        }
-    }
-
-
-    @Test
-    public void 팔로잉_조회() throws Exception {
-        //given
-        Member member1 = memberRepository.save(new Member("sdkim@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울"));
-        Member member2 = memberRepository.save(new Member("aaa@gmail.com", "1234", Sex.MALE, "sda", LocalDate.now(), "서울"));
-        Member follower = memberRepository.save(new Member("bbb@gmail.com", "1234", Sex.MALE, "sda", LocalDate.now(), "서울"));
-
-        //when
-        followService.follow(member1.getId(), follower.getId());
-        followService.follow(member2.getId(), follower.getId());
-
-        //then
-        List<Follow> followings = followService.getFollowings(follower.getId());
+            followService.follow(anyLong(), anyLong());
+        }).isInstanceOf(AlreadyFollowedException.class);
     }
 }

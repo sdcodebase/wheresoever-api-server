@@ -36,12 +36,10 @@ class RandomMessageServiceTest {
         //given
         Member receiver = Member.builder()
                 .id(1L)
-                .email("sdcodebase@gmail.com")
                 .build();
 
         Member sender = Member.builder()
                 .id(2L)
-                .email("sdkim@gmail.com")
                 .build();
 
         String content = "안녕하세요 반가워요 팔로우 해주세요";
@@ -74,12 +72,10 @@ class RandomMessageServiceTest {
         //given
         Member receiver = Member.builder()
                 .id(1L)
-                .email("sdcodebase@gmail.com")
                 .build();
 
         Member sender = Member.builder()
                 .id(2L)
-                .email("sdkim@gmail.com")
                 .build();
 
         String content = "안녕하세요 반가워요 팔로우 해주세요";
@@ -105,12 +101,10 @@ class RandomMessageServiceTest {
         //given
         Member receiver = Member.builder()
                 .id(1L)
-                .email("sdcodebase@gmail.com")
                 .build();
 
         Member sender = Member.builder()
                 .id(2L)
-                .email("sdkim@gmail.com")
                 .build();
 
         String content = "안녕하세요 반가워요 팔로우 해주세요";

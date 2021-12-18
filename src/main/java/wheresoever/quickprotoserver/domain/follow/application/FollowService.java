@@ -3,6 +3,7 @@ package wheresoever.quickprotoserver.domain.follow.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import wheresoever.quickprotoserver.domain.follow.AlreadyFollowedException;
 import wheresoever.quickprotoserver.domain.follow.domain.Follow;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
 import wheresoever.quickprotoserver.domain.follow.dao.FollowRepository;
@@ -10,6 +11,7 @@ import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,17 +23,15 @@ public class FollowService {
 
     @Transactional
     public Long follow(Long memberId, Long followerId) {
-        Follow prevFollowed = followRepository.getFollowByMemberIdAndFollowerId(memberId, followerId);
-        if (Objects.nonNull(prevFollowed)) {
-            throw new IllegalStateException("이미 팔로우했습니다.");
+        Optional<Follow> optionalFollow = followRepository.getFollowByMemberIdAndFollowerId(memberId, followerId);
+        if (optionalFollow.isPresent()) {
+            throw new AlreadyFollowedException();
         }
-
 
         Member member = memberRepository.findById(memberId).get();
         Member follower = memberRepository.findById(followerId).get();
 
         Follow follow = new Follow(member, follower);
-
         return followRepository.save(follow).getId();
     }
 

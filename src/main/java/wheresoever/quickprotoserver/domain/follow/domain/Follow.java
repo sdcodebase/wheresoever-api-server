@@ -1,8 +1,6 @@
 package wheresoever.quickprotoserver.domain.follow.domain;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
 
 import javax.persistence.*;
@@ -11,7 +9,9 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "follow")
+@Builder
 public class Follow {
     @Id
     @GeneratedValue

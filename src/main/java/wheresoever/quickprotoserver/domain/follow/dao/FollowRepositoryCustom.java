@@ -4,6 +4,7 @@ import wheresoever.quickprotoserver.domain.follow.domain.Follow;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public interface FollowRepositoryCustom {
 
@@ -11,7 +12,7 @@ public interface FollowRepositoryCustom {
 
     List<Follow> getFollowings(Long memberId);
 
-    Follow getFollowByMemberIdAndFollowerId(Long memberId, Long followerId);
+    Optional<Follow> getFollowByMemberIdAndFollowerId(Long memberId, Long followerId);
 
     HashMap<Long, Integer> getFollowerCountMap(List<Long> memberIds);
 

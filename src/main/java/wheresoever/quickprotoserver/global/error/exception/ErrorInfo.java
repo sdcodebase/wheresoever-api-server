@@ -24,6 +24,9 @@ public enum ErrorInfo {
     // RandomMessage Exception
     PREV_SENT_MESSAGE(200, "RM_001"),
 
+    // Follow Exception
+    PREV_FOLLOWED(200, "FOLLOW_001"),
+
     ;
 
     private final int statusCode;
