@@ -4,8 +4,8 @@ import wheresoever.quickprotoserver.global.constant.ErrorMessageMapper;
 import wheresoever.quickprotoserver.global.error.exception.ErrorInfo;
 import wheresoever.quickprotoserver.global.error.exception.InvalidValueException;
 
-public class prevSendMessageExistException extends InvalidValueException {
-    public prevSendMessageExistException() {
+public class PrevSentMessageExistException extends InvalidValueException {
+    public PrevSentMessageExistException() {
         super(ErrorInfo.PREV_SENT_MESSAGE, ErrorMessageMapper.PREV_SENT_MESSAGE.getValue());
     }
 }

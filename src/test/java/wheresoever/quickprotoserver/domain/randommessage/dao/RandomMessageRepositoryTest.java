@@ -29,23 +29,16 @@ class RandomMessageRepositoryTest {
     @Autowired
     RandomMessageRepository messageRepository;
 
+    private Member generateEmptyMember() {
+        return Member.builder().build();
+    }
+
     @Test
     void getSentMessages() {
-        Member sender = Member.builder()
-                .email("sdcodebase@gmail.com")
-                .build();
-
-        Member receiver1 = Member.builder()
-                .email("r1@gmail.com")
-                .build();
-
-        Member receiver2 = Member.builder()
-                .email("r2@gmail.com")
-                .build();
-
-        Member receiver3 = Member.builder()
-                .email("r3@gmail.com")
-                .build();
+        Member sender = generateEmptyMember();
+        Member receiver1 = generateEmptyMember();
+        Member receiver2 = generateEmptyMember();
+        Member receiver3 = generateEmptyMember();
 
         memberRepository.saveAll(List.of(sender, receiver1, receiver2, receiver3));
 
@@ -56,6 +49,9 @@ class RandomMessageRepositoryTest {
         message3.delete();
 
         messageRepository.saveAll(List.of(message1, message2, message3));
+
+        em.flush();
+        em.clear();
 
         List<RandomMessage> sentMessages = messageRepository.getSentMessages(sender.getId());
 
@@ -75,21 +71,10 @@ class RandomMessageRepositoryTest {
 
     @Test
     void getReceiveMessages() {
-        Member receiver = Member.builder()
-                .email("sdcodebase@gmail.com")
-                .build();
-
-        Member sender1 = Member.builder()
-                .email("s1@gmail.com")
-                .build();
-
-        Member sender2 = Member.builder()
-                .email("s2@gmail.com")
-                .build();
-
-        Member sender3 = Member.builder()
-                .email("s3@gmail.com")
-                .build();
+        Member receiver = generateEmptyMember();
+        Member sender1 = generateEmptyMember();
+        Member sender2 = generateEmptyMember();
+        Member sender3 = generateEmptyMember();
 
         memberRepository.saveAll(List.of(receiver, sender1, sender2, sender3));
 
@@ -100,6 +85,9 @@ class RandomMessageRepositoryTest {
         message3.delete();
 
         messageRepository.saveAll(List.of(message1, message2, message3));
+
+        em.flush();
+        em.clear();
 
         List<RandomMessage> receivedMessages = messageRepository.getReceivedMessages(receiver.getId());
 

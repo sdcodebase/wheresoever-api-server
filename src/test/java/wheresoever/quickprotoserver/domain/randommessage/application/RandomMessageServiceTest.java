@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
-import wheresoever.quickprotoserver.domain.randommessage.prevSendMessageExistException;
+import wheresoever.quickprotoserver.domain.randommessage.PrevSentMessageExistException;
 import wheresoever.quickprotoserver.domain.randommessage.dao.RandomMessageRepository;
 import wheresoever.quickprotoserver.domain.randommessage.domain.RandomMessage;
 
@@ -97,7 +97,7 @@ class RandomMessageServiceTest {
         assertThatThrownBy(() -> {
             //when
             randomMessageService.send(receiver.getId(), sender.getId(), content);
-        }).isInstanceOf(prevSendMessageExistException.class);
+        }).isInstanceOf(PrevSentMessageExistException.class);
     }
 
     @Test

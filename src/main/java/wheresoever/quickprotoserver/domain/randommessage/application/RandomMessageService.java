@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
 import wheresoever.quickprotoserver.domain.member.exception.MemberNotFoundException;
-import wheresoever.quickprotoserver.domain.randommessage.prevSendMessageExistException;
+import wheresoever.quickprotoserver.domain.randommessage.PrevSentMessageExistException;
 import wheresoever.quickprotoserver.domain.randommessage.domain.RandomMessage;
 import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
 import wheresoever.quickprotoserver.domain.randommessage.dao.RandomMessageRepository;
@@ -29,7 +29,7 @@ public class RandomMessageService {
     public Long send(Long receiverId, Long senderId, String content) {
         Optional<RandomMessage> prevMessage = randomMessageRepository.getMessageByReceiverIdAndSenderId(receiverId, senderId);
         if (prevMessage.isPresent()) {
-            throw new prevSendMessageExistException();
+            throw new PrevSentMessageExistException();
         }
 
         Optional<Member> optionalSender = memberRepository.findById(senderId);
