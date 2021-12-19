@@ -1,8 +1,6 @@
 package wheresoever.quickprotoserver.domain.postlike.domain;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
 import wheresoever.quickprotoserver.domain.post.domain.Post;
 
@@ -12,7 +10,9 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "post_likes")
+@Builder
 public class PostLike {
 
     @Id

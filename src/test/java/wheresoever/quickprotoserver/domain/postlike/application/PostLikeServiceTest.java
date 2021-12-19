@@ -1,129 +1,147 @@
 package wheresoever.quickprotoserver.domain.postlike.application;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-import wheresoever.quickprotoserver.domain.member.application.MemberService;
-import wheresoever.quickprotoserver.domain.post.application.PostService;
-import wheresoever.quickprotoserver.domain.postlike.application.PostLikeService;
-import wheresoever.quickprotoserver.domain.postlike.domain.PostLike;
-import wheresoever.quickprotoserver.domain.model.Sex;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
-import wheresoever.quickprotoserver.domain.model.Category;
 import wheresoever.quickprotoserver.domain.post.dao.PostRepository;
+import wheresoever.quickprotoserver.domain.post.domain.Post;
 import wheresoever.quickprotoserver.domain.postlike.dao.PostLikeRepository;
+import wheresoever.quickprotoserver.domain.postlike.domain.PostLike;
+import wheresoever.quickprotoserver.domain.postlike.exception.AlreadyLikedPostException;
+import wheresoever.quickprotoserver.global.error.exception.EntityNotFoundException;
+import wheresoever.quickprotoserver.global.error.exception.InvalidValueException;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
 
 
-@SpringBootTest
-@Transactional
+@ExtendWith(MockitoExtension.class)
 class PostLikeServiceTest {
 
-    @Autowired
-    private PostLikeService postLikeService;
+    @Mock
+    PostLikeRepository postLikeRepository;
 
-    @Autowired
-    private MemberService memberService;
+    @Mock
+    PostRepository postRepository;
 
-    @Autowired
-    private PostService postService;
+    @Mock
+    MemberRepository memberRepository;
 
-    @Autowired
-    private PostRepository postRepository;
-
-    @Autowired
-    private PostLikeRepository postLikeRepository;
+    @InjectMocks
+    PostLikeService postLikeService;
 
     @Test
-    public void 글_좋아요() throws Exception {
+    void 글_좋아요() {
         //given
-        Member member = new Member("sdkim123@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울");
-        Long memberId = memberService.join(member);
+        Member liker = Member.builder()
+                .id(1L)
+                .build();
 
-        Long postId = postService.posts(memberId, "게시글22", Category.ART);
+        Post post = Post.builder()
+                .id(2L)
+                .build();
 
-        PostLike postLike = new PostLike(postRepository.findById(postId).get(), member);
+        given(postLikeRepository.getLikes(anyLong()))
+                .willReturn(List.of());
+
+        given(postRepository.findById(anyLong()))
+                .willReturn(Optional.of(post));
+        given(memberRepository.findById(anyLong()))
+                .willReturn(Optional.of(liker));
+
+        PostLike postLike = PostLike.builder()
+                .id(1L)
+                .member(liker)
+                .post(post)
+                .build();
+
+        given(postLikeRepository.save(any()))
+                .willReturn(postLike);
 
         //when
-        Long likeId = postLikeService.like(memberId, postId);
+        Long postLikeId = postLikeService.like(liker.getId(), post.getId());
 
         //then
-        PostLike findPostLike = postLikeRepository.findById(likeId).get();
-
-        Assertions.assertThat(findPostLike.getMember().getId()).isEqualTo(postLike.getMember().getId());
-        Assertions.assertThat(findPostLike.getPost().getId()).isEqualTo(postLike.getPost().getId());
+        assertThat(postLikeId).isEqualTo(postLike.getId());
     }
 
     @Test
-    public void 글_좋아요_중복() throws Exception {
+    void 글_좋아요_중복() {
         //given
+        Member liker = Member.builder()
+                .id(1L)
+                .build();
 
-        Member member = new Member("sdkim123@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울");
-        Long memberId = memberService.join(member);
+        PostLike postLike = PostLike.builder()
+                .id(2L)
+                .member(liker)
+                .build();
 
-        Long postId = postService.posts(memberId, "게시글22", Category.ART);
+        given(postLikeRepository.getLikes(anyLong()))
+                .willReturn(List.of(postLike));
 
-        postLikeService.like(memberId, postId);
+        assertThatThrownBy(() -> {
+            postLikeService.like(liker.getId(), anyLong());
+        }).isInstanceOf(AlreadyLikedPostException.class);
 
-        //then
-        Assertions.assertThatThrownBy(() -> {
-            //when
-            postLikeService.like(memberId, postId);
-        }).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
-    public void 글_좋아요_취소() throws Exception {
+    void 글_좋아요_취소() {
         //given
-        Member member = new Member("sdkim123@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울");
-        Long memberId = memberService.join(member);
+        PostLike postLike = PostLike.builder()
+                .id(1L)
+                .build();
 
-        Long postId = postService.posts(memberId, "게시글22", Category.ART);
-
-        Long likeId = postLikeService.like(memberId, postId);
+        given(postLikeRepository.findByMemberIdAndPostId(anyLong(), anyLong()))
+                .willReturn(Optional.of(postLike));
 
         //when
-        postLikeService.unlike(memberId, postId);
+        postLikeService.unlike(anyLong(), anyLong());
 
         //then
-        PostLike like = postLikeRepository.findById(likeId).get();
-        Assertions.assertThat(like.getCanceledAt()).isNotNull();
+        assertThat(postLike.getCanceledAt()).isNotNull();
     }
 
     @Test
-    public void 글_좋아요_취소_중복() throws Exception {
+    void 글_좋아요_취소_중복() {
         //given
-        Member member = new Member("sdkim123@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울");
-        Long memberId = memberService.join(member);
+        PostLike postLike = PostLike.builder()
+                .id(1L)
+                .canceledAt(LocalDateTime.now())
+                .build();
 
-        Long postId = postService.posts(memberId, "게시글22", Category.ART);
-
-        Long likeId = postLikeService.like(memberId, postId);
-
-        postLikeService.unlike(memberId, postId);
+        given(postLikeRepository.findByMemberIdAndPostId(anyLong(), anyLong()))
+                .willReturn(Optional.of(postLike));
 
         //then
-        Assertions.assertThatThrownBy(() -> {
+        assertThatThrownBy(() -> {
             //when
-            postLikeService.unlike(memberId, postId);
-        }).isInstanceOf(IllegalStateException.class);
+            postLikeService.unlike(anyLong(), anyLong());
+        }).isInstanceOf(InvalidValueException.class);
     }
 
     @Test
-    public void 글_좋아요_안했는데_취소하기() throws Exception {
+    void 글_좋아요_안했는데_좋아요_취소() {
         //given
-        Member member = new Member("sdkim123@gmail.com", "1234", Sex.MALE, "sundo", LocalDate.now(), "서울");
-        Long memberId = memberService.join(member);
-
-        Long postId = postService.posts(memberId, "게시글22", Category.ART);
+        given(postLikeRepository.findByMemberIdAndPostId(anyLong(), anyLong()))
+                .willReturn(Optional.ofNullable(null));
 
         //then
-        Assertions.assertThatThrownBy(() -> {
+        assertThatThrownBy(() -> {
             //when
-            postLikeService.unlike(0L, postId);
-        }).isInstanceOf(IllegalStateException.class);
+            postLikeService.unlike(anyLong(), anyLong());
+        }).isInstanceOf(EntityNotFoundException.class);
     }
 }

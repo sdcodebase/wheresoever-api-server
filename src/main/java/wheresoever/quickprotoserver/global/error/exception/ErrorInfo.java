@@ -27,6 +27,9 @@ public enum ErrorInfo {
     // Follow Exception
     PREV_FOLLOWED(200, "FOLLOW_001"),
 
+    // PostLike Exception
+    PREV_POST_LIKED(200, "PL_001"),
+
     ;
 
     private final int statusCode;

@@ -20,6 +20,8 @@ public enum ErrorMessageMapper {
 
     PREV_FOLLOWED("이미 팔로우한 멤버입니다"),
 
+    PREV_POST_LIKED("이미 좋아요한 게시글입니다"),
+
     ;
 
     private final String message;
