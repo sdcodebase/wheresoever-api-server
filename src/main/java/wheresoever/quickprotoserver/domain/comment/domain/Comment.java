@@ -1,8 +1,6 @@
 package wheresoever.quickprotoserver.domain.comment.domain;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import wheresoever.quickprotoserver.domain.commentchild.domain.CommentChild;
 import wheresoever.quickprotoserver.domain.post.domain.Post;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
@@ -14,7 +12,9 @@ import java.util.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "comments")
+@Builder
 public class Comment {
 
     @Id

@@ -1,52 +1,78 @@
 package wheresoever.quickprotoserver.domain.comment.application;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-import wheresoever.quickprotoserver.domain.comment.application.CommentService;
-import wheresoever.quickprotoserver.domain.member.application.MemberService;
-import wheresoever.quickprotoserver.domain.post.application.PostService;
-import wheresoever.quickprotoserver.domain.model.Category;
-import wheresoever.quickprotoserver.domain.comment.domain.Comment;
-import wheresoever.quickprotoserver.domain.member.domain.Member;
-import wheresoever.quickprotoserver.domain.model.Sex;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import wheresoever.quickprotoserver.domain.comment.dao.CommentRepository;
+import wheresoever.quickprotoserver.domain.comment.domain.Comment;
+import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
+import wheresoever.quickprotoserver.domain.member.domain.Member;
+import wheresoever.quickprotoserver.domain.model.Category;
+import wheresoever.quickprotoserver.domain.post.dao.PostRepository;
+import wheresoever.quickprotoserver.domain.post.domain.Post;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Optional;
 
-@SpringBootTest
-@Transactional
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.spy;
+
+@ExtendWith(MockitoExtension.class)
 class CommentServiceTest {
 
-    @Autowired
-    private CommentService commentService;
+    @Mock
+    CommentRepository commentRepository;
 
-    @Autowired
-    private MemberService memberService;
+    @Mock
+    MemberRepository memberRepository;
 
-    @Autowired
-    private PostService postService;
+    @Mock
+    PostRepository postRepository;
 
-    @Autowired
-    private CommentRepository commentRepository;
+    @InjectMocks
+    CommentService commentService;
 
     @Test
-    public void 댓글_쓰기() throws Exception {
+    void 댓글_쓰기() {
         //given
-        Member member = new Member("aaa@gmail", "213", Sex.MALE, "헤헤", LocalDate.now(), "서울");
-        Long memberId = memberService.join(member);
+        Member member = Member.builder()
+                .id(1L)
+                .build();
 
-        String content = "처음으로 쓰는 글입니다.";
-        Long postId = postService.posts(memberId, content, Category.ART);
+        Post post = Post.builder()
+                .id(1L)
+                .member(member)
+                .content("내용")
+                .category(Category.ART)
+                .comments(new ArrayList<>())
+                .build();
+
+        given(memberRepository.findById(any()))
+                .willReturn(Optional.of(member));
+
+        given(postRepository.findById(any()))
+                .willReturn(Optional.of(post));
+
+        Comment comment = new Comment(member, post, "댓글");
+        given(commentRepository.save(any()))
+                .willReturn(comment);
 
         //when
-        String commentContent = "첫 댓글입니다.";
-        Long commentId = commentService.comment(memberId, postId, commentContent);
+        Long commentId = commentService.comment(member.getId(), post.getId(), "안녕하세요");
 
         //then
-        Comment comment = commentRepository.findById(commentId).get();
-        Assertions.assertThat(commentId).isEqualTo(comment.getId());
+        assertThat(commentId).isEqualTo(comment.getId());
+        assertThat(post.getComments().get(0)).isEqualTo(comment);
+    }
+
+    @Test
+    void 댓글_삭제() {
+        Comment comment = spy(Comment.class);
+        comment.delete();
+        assertThat(comment.getCanceledAt()).isNotNull();
     }
 }

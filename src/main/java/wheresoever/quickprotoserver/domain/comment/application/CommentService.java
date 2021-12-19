@@ -9,6 +9,9 @@ import wheresoever.quickprotoserver.domain.post.domain.Post;
 import wheresoever.quickprotoserver.domain.comment.dao.CommentRepository;
 import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
 import wheresoever.quickprotoserver.domain.post.dao.PostRepository;
+import wheresoever.quickprotoserver.global.error.exception.EntityNotFoundException;
+
+import java.util.Optional;
 
 
 @Service
@@ -25,18 +28,13 @@ public class CommentService {
         Member member = memberRepository.findById(memberId).get();
         Post post = postRepository.findById(postId).get();
 
-        Comment comment = new Comment(member, post, content);
-        commentRepository.save(comment);
-
-        return comment.getId();
+        return commentRepository.save(new Comment(member, post, content)).getId();
     }
 
     @Transactional
-    public Long recomment(Long commentId, String content) {
+    public void recomment(Long commentId, String content) {
         Comment comment = commentRepository.findById(commentId).get();
         comment.recomment(content);
-
-        return comment.getId();
     }
 
     @Transactional
