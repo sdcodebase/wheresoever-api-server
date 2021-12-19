@@ -20,8 +20,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
     private final QPost post = QPost.post;
     private final QComment comment = QComment.comment;
-    private final QCommentChild commentChild = QCommentChild.commentChild;
-    private final QMember member = QMember.member;
 
     public PostRepositoryCustomImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
