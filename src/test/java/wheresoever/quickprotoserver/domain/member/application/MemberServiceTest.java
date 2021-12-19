@@ -5,19 +5,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import wheresoever.quickprotoserver.domain.follow.dao.FollowRepository;
 import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
+import wheresoever.quickprotoserver.domain.member.dto.SearchMemberDto;
 import wheresoever.quickprotoserver.domain.member.exception.MemberEmailPreviousExistsException;
 import wheresoever.quickprotoserver.domain.member.exception.MemberNotFoundException;
 import wheresoever.quickprotoserver.domain.model.Sex;
+import wheresoever.quickprotoserver.domain.randommessage.dao.RandomMessageRepository;
+import wheresoever.quickprotoserver.domain.randommessage.domain.RandomMessage;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,6 +29,12 @@ class MemberServiceTest {
 
     @Mock
     MemberRepository memberRepository;
+
+    @Mock
+    RandomMessageRepository randomMessageRepository;
+
+    @Mock
+    FollowRepository followRepository;
 
     @InjectMocks
     MemberService memberService;
@@ -106,79 +116,85 @@ class MemberServiceTest {
         assertThat(member.getBirthdate()).isEqualTo("2014-10-29");
         assertThat(member.getMetropolitan()).isEqualTo("전남");
     }
-//
-//    @Test
-//    public void 멤버_검색_특정_점수보다_크거나_같을때() throws Exception {
-//        //given
-//        String metro = "서울";
-//        int grade2 = 2;
-//        int grade3 = 3;
-//
-//        Long memberId = memberService.join(new Member("sdkim@gmail.com", "1234", Sex.MALE, "111", LocalDate.now(), metro));
-//        Long receiverId = memberService.join(new Member("aaa@gmail.com", "1234", Sex.MALE, "222", LocalDate.now(), metro));
-//
-//        Long member_grade2 = memberService.join(new Member("bbb@gmail.com", "1234", Sex.MALE, "333", LocalDate.now(), metro));
-//        Long member_grade3 = memberService.join(new Member("ccc@gmail.com", "1234", Sex.MALE, "444", LocalDate.now(), metro));
-//
-//        Long msgId1 = randomMessageService.send(receiverId, member_grade2, "hello");
-//        randomMessageService.evaluateMember(receiverId, msgId1, grade2);
-//
-//        Long msgId2 = randomMessageService.send(receiverId, member_grade3, "hello");
-//        randomMessageService.evaluateMember(receiverId, msgId2, grade3);
-//
-//        Long msgId3 = randomMessageService.send(member_grade2, member_grade3, "hh");
-//        randomMessageService.evaluateMember(member_grade2, msgId3, grade3);
-//
-//        //when
-//        List<SearchMemberDto> members = memberService.searchMember(memberId, metro, grade3, LocalDate.MIN, LocalDate.MAX);
-//
-//        //then
-//        Assertions.assertThat(members.size()).isEqualTo(1);
-//
-//        boolean existanceOfMember_grade3 = members.stream()
-//                .anyMatch(searchMemberDto -> searchMemberDto.getId().equals(member_grade3.toString()));
-//
-//        Assertions.assertThat(existanceOfMember_grade3).isEqualTo(true);
-//
-//        boolean existanceOfMember_grade2 = members.stream()
-//                .anyMatch(searchMemberDto -> searchMemberDto.getId().equals(member_grade2.toString()));
-//
-//        Assertions.assertThat(existanceOfMember_grade2).isEqualTo(false);
-//    }
-//
-//    @Test
-//    public void 멤버_검색_팔로워_제외() throws Exception {
-//        //given
-//        String metro = "서울";
-//        int grade = 2;
-//        Long memberId = memberService.join(new Member("sdkim@gmail.com", "1234", Sex.MALE, "111", LocalDate.now(), metro));
-//        Long receiverId = memberService.join(new Member("aaa@gmail.com", "1234", Sex.MALE, "222", LocalDate.now(), metro));
-//
-//        Long listMember1 = memberService.join(new Member("bbb@gmail.com", "1234", Sex.MALE, "333", LocalDate.now(), metro));
-//        Long listMember2 = memberService.join(new Member("ccc@gmail.com", "1234", Sex.MALE, "444", LocalDate.now(), metro));
-//
-//        Long msgId1 = randomMessageService.send(receiverId, listMember1, "hello");
-//        randomMessageService.evaluateMember(receiverId, msgId1, grade + 1);
-//
-//        Long msgId2 = randomMessageService.send(receiverId, listMember2, "hello");
-//        randomMessageService.evaluateMember(receiverId, msgId2, grade + 1);
-//
-//        followService.follow(memberId, listMember2);
-//
-//        //when
-//        List<SearchMemberDto> members = memberService.searchMember(memberId, metro, grade, LocalDate.MIN, LocalDate.MAX);
-//
-//        //then
-//        boolean existanceOfListMember1 = members.stream().anyMatch(searchMemberDto -> searchMemberDto.getId().equals(listMember1.toString()));
-//        boolean existanceOfListMember2 = members.stream().anyMatch(searchMemberDto -> searchMemberDto.getId().equals(listMember2.toString()));
-//
-//        Assertions.assertThat(existanceOfListMember1).isEqualTo(true);
-//        Assertions.assertThat(existanceOfListMember2).isEqualTo(false);
-//    }
 
-//    @Test
-//    public void 멤버_검색_다른지역_제외() throws Exception {
-//
-//
-//    }
+    @Test
+    void 멤버_검색_특정_점수보다_크거나_같을때() {
+        //given
+        Member member1 = Member.builder()
+                .id(1L)
+                .build();
+
+        Member member2 = Member.builder()
+                .id(2L)
+                .build();
+
+        Member member3 = Member.builder()
+                .id(3L)
+                .build();
+
+        // 리스팅될 대상만 필드 SET
+        Member member4 = Member.builder()
+                .id(4L)
+                .email("sdcodebase@gmail.com")
+                .birthdate(LocalDate.now())
+                .metropolitan("서울")
+                .nickname("호호")
+                .sex(Sex.FEMALE)
+                .build();
+
+        List<Member> members = List.of(member1, member2, member3, member4);
+        given(memberRepository.searchMemberByOption(anyString(), any(LocalDate.class), any(LocalDate.class)))
+                .willReturn(members);
+
+
+        RandomMessage message1 = RandomMessage.builder()
+                .sender(member2)
+                .grade(2)
+                .build();
+
+        RandomMessage message2 = RandomMessage.builder()
+                .sender(member3)
+                .grade(4)
+                .build();
+
+        RandomMessage message3 = RandomMessage.builder()
+                .sender(member4)
+                .grade(5)
+                .build();
+
+        List<RandomMessage> messages = List.of(message1, message2, message3);
+        given(randomMessageRepository.findRandomMessagesByGradeIsNotNullAndSenderIn(anyList()))
+                .willReturn(messages);
+
+
+        HashMap<Long, Boolean> memberFollowingMap = new HashMap<>();
+        members.forEach(member -> memberFollowingMap.put(member.getId(), false));
+        memberFollowingMap.put(member3.getId(), true); //member3는 member1 팔로우한다
+        given(followRepository.getMemberFollowingMap(anyLong(), anyList()))
+                .willReturn(memberFollowingMap);
+
+
+        HashMap<Long, Integer> followerCountMap = new HashMap<>();
+        members.forEach(member -> followerCountMap.put(member.getId(), 0)); // 메타데이터는 테스트와 무관하여 임의 생성
+
+        //when
+        List<SearchMemberDto> searchMemberDtos = memberService.searchMember(member1.getId(), "서울", 4, LocalDate.MIN, LocalDate.MAX);
+
+        //then
+
+        // 기준 평점보다 낮아서 평점으로 제외
+        boolean member2Existence = checkMemberDtoExistenceById(searchMemberDtos, member2.getId());
+        assertThat(member2Existence).isFalse();
+
+        // 팔로워 제외
+        boolean member3Existence = checkMemberDtoExistenceById(searchMemberDtos, member3.getId());
+        assertThat(member3Existence).isFalse();
+
+        boolean member4Existence = checkMemberDtoExistenceById(searchMemberDtos, member4.getId());
+        assertThat(member4Existence).isTrue();
+    }
+
+    private boolean checkMemberDtoExistenceById(List<SearchMemberDto> dtos, Long memberId) {
+        return dtos.stream().anyMatch(dto -> dto.getId().equals(Long.toString(memberId)));
+    }
 }
