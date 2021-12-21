@@ -1,7 +1,7 @@
 package wheresoever.quickprotoserver.domain.randommessage.dao;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import wheresoever.quickprotoserver._domain.QRandomMessage;
+import wheresoever.quickprotoserver.domain.randommessage.domain.QRandomMessage;
 import wheresoever.quickprotoserver.domain.randommessage.domain.RandomMessage;
 
 import javax.persistence.EntityManager;

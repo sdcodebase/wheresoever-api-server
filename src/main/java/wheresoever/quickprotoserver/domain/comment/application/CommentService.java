@@ -3,15 +3,12 @@ package wheresoever.quickprotoserver.domain.comment.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import wheresoever.quickprotoserver.domain.comment.domain.Comment;
-import wheresoever.quickprotoserver.domain.member.domain.Member;
-import wheresoever.quickprotoserver.domain.post.domain.Post;
 import wheresoever.quickprotoserver.domain.comment.dao.CommentRepository;
+import wheresoever.quickprotoserver.domain.comment.domain.Comment;
 import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
+import wheresoever.quickprotoserver.domain.member.domain.Member;
 import wheresoever.quickprotoserver.domain.post.dao.PostRepository;
-import wheresoever.quickprotoserver.global.error.exception.EntityNotFoundException;
-
-import java.util.Optional;
+import wheresoever.quickprotoserver.domain.post.domain.Post;
 
 
 @Service

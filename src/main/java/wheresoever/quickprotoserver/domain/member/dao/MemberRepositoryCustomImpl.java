@@ -2,7 +2,7 @@ package wheresoever.quickprotoserver.domain.member.dao;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
-import wheresoever.quickprotoserver._domain.QMember;
+import wheresoever.quickprotoserver.domain.member.domain.QMember;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;

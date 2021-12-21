@@ -1,12 +1,11 @@
 package wheresoever.quickprotoserver.global;
 
 import lombok.RequiredArgsConstructor;
-import wheresoever.quickprotoserver.domain.model.Category;
-import wheresoever.quickprotoserver.domain.member.domain.Member;
-import wheresoever.quickprotoserver.domain.model.Sex;
-import wheresoever.quickprotoserver.domain.commentchild.application.CommentChildService;
 import wheresoever.quickprotoserver.domain.comment.application.CommentService;
 import wheresoever.quickprotoserver.domain.member.application.MemberService;
+import wheresoever.quickprotoserver.domain.member.domain.Member;
+import wheresoever.quickprotoserver.domain.model.Category;
+import wheresoever.quickprotoserver.domain.model.Sex;
 import wheresoever.quickprotoserver.domain.post.application.PostService;
 
 import javax.annotation.PostConstruct;
@@ -18,7 +17,6 @@ public class InitDB {
     private final MemberService memberService;
     private final PostService postService;
     private final CommentService commentService;
-    private final CommentChildService commentChildService;
 
     @PostConstruct
     public void init() {
@@ -40,10 +38,6 @@ public class InitDB {
         Long commentId1 = commentService.comment(commentMemberId, postId, "1. 댓글작성자의 댓글");
         commentService.comment(commentMemberId, postId, "2. 댓글작성자의 댓글");
         Long commentId2 = commentService.comment(postMemberId, postId, "3. 게시글작성자의 댓글");
-
-        commentChildService.comment(childMember1Id, commentId1, "commentId1의 대댓글1");
-        commentChildService.comment(childMember1Id, commentId2, "commentId2의 대댓글2");
-        commentChildService.comment(childMember2Id, commentId2, "commentId2의 대댓글3");
 
     }
 

@@ -1,13 +1,11 @@
 package wheresoever.quickprotoserver.domain.comment.domain;
 
 import lombok.*;
-import wheresoever.quickprotoserver.domain.commentchild.domain.CommentChild;
-import wheresoever.quickprotoserver.domain.post.domain.Post;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
+import wheresoever.quickprotoserver.domain.post.domain.Post;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.*;
 
 @Entity
 @Getter
@@ -32,9 +30,6 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
-
-    @OneToMany(mappedBy = "comment")
-    private List<CommentChild> commentChildren = new ArrayList<>();
 
     private String content;
 

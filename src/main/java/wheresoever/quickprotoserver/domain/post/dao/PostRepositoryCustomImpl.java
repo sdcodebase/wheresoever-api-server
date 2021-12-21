@@ -7,8 +7,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
-import wheresoever.quickprotoserver._domain.*;
+import wheresoever.quickprotoserver.domain.comment.domain.QComment;
 import wheresoever.quickprotoserver.domain.post.domain.Post;
+import wheresoever.quickprotoserver.domain.post.domain.QPost;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -45,16 +46,16 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         // LAZY INIT
         // find CommentChild
 
-        // if문 처리하기?
-        post.getComments()
-                .forEach(comment -> comment.getCommentChildren()
-                        .sort((c1, c2) -> c1.getAt().isEqual(c2.getAt()) ? 0 : c1.getAt().isAfter(c2.getAt()) ? 1 : -1));
+//        // if문 처리하기?
+//        post.getComments()
+//                .forEach(comment -> comment.getCommentChildren()
+//                        .sort((c1, c2) -> c1.getAt().isEqual(c2.getAt()) ? 0 : c1.getAt().isAfter(c2.getAt()) ? 1 : -1));
 
         // LAZY INIT
         // find Member from Post, Comment, CommentChild
 
         // if문 처리하기?
-        post.getComments().get(0).getMember().getEmail();
+//        post.getComments().get(0).getMember().getEmail();
 
         return post;
     }

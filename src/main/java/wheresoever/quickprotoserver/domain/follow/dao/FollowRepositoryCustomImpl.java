@@ -3,7 +3,7 @@ package wheresoever.quickprotoserver.domain.follow.dao;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import wheresoever.quickprotoserver.domain.follow.domain.Follow;
-import wheresoever.quickprotoserver._domain.QFollow;
+import wheresoever.quickprotoserver.domain.follow.domain.QFollow;
 
 import javax.persistence.EntityManager;
 import java.util.HashMap;
