@@ -43,7 +43,7 @@ public class PostApiController {
         public ReadPostsResponse(Post post) {
             content = post.getContent();
             likeCount = Long.toString(post.getLikes().size());
-            commentCount = Long.toString(post.getComments().stream().mapToInt(comment -> comment.getCommentChildren().size()).sum());
+//            commentCount = Long.toString(post.getComments().stream().mapToInt(comment -> comment.getCommentChildren().size()).sum());
             memberId = post.getMember().getId().toString();
             nickName = post.getMember().getNickname();
             id = Long.toString(post.getId());
@@ -80,10 +80,10 @@ public class PostApiController {
         private T id;
     }
 
-    @GetMapping("/{postId}")
-    public PostDetailDto readPostDetail(@PathVariable Long postId) {
-        return postService.getPostDetailInfo(postId);
-    }
+//    @GetMapping("/{postId}")
+//    public PostDetailDto readPostDetail(@PathVariable Long postId) {
+//        return postService.getPostDetailInfo(postId);
+//    }
 
     @Data
     @AllArgsConstructor

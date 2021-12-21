@@ -9,6 +9,7 @@ import wheresoever.quickprotoserver.domain.comment.dao.CommentRepository;
 import wheresoever.quickprotoserver.domain.comment.domain.Comment;
 import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
+import wheresoever.quickprotoserver.domain.member.exception.MemberNotFoundException;
 import wheresoever.quickprotoserver.domain.model.Category;
 import wheresoever.quickprotoserver.domain.post.dao.PostRepository;
 import wheresoever.quickprotoserver.domain.post.domain.Post;
@@ -17,7 +18,9 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.spy;
 
@@ -67,6 +70,18 @@ class CommentServiceTest {
         //then
         assertThat(commentId).isEqualTo(comment.getId());
         assertThat(post.getComments().get(0)).isEqualTo(comment);
+    }
+
+    @Test
+    void 댓글쓰기_글_없을때() {
+        given(memberRepository.findById(anyLong()))
+                .willReturn(Optional.of(Member.builder().build()));
+
+        given(postRepository.findById(anyLong()))
+                .willThrow(MemberNotFoundException.class);
+
+        assertThatThrownBy(() -> commentService.comment(1L, 1L, "aaa"))
+                .isInstanceOf(MemberNotFoundException.class);
     }
 
     @Test

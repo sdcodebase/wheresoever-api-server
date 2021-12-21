@@ -22,6 +22,10 @@ public enum ErrorMessageMapper {
 
     PREV_POST_LIKED("이미 좋아요한 게시글입니다"),
 
+    POST_NOT_FOUND("이미 삭제한 게시글입니다."),
+
+    COMMENT_NOT_FOUND("해당 댓글은 삭제되었습니다."),
+
     ;
 
     private final String message;

@@ -30,6 +30,9 @@ public enum ErrorInfo {
     // PostLike Exception
     PREV_POST_LIKED(200, "PL_001"),
 
+    // Post Exception
+    POST_NOT_FOUND(500, "POST_001"),
+
     ;
 
     private final int statusCode;

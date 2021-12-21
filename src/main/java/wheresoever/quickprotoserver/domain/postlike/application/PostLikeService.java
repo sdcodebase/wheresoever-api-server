@@ -68,4 +68,7 @@ public class PostLikeService {
         return postLikeRepository.getLikes(postId);
     }
 
+    public Integer getLikeCountOfPost(Long postId) {
+        return postLikeRepository.countByPostIdAndCanceledAtIsNotNull(postId);
+    }
 }
