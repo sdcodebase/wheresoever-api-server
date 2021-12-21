@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
 import wheresoever.quickprotoserver.domain.member.exception.MemberEmailPreviousExistsException;
+import wheresoever.quickprotoserver.domain.member.exception.MemberLoginFailException;
 import wheresoever.quickprotoserver.domain.member.exception.MemberNotFoundException;
 import wheresoever.quickprotoserver.domain.randommessage.domain.RandomMessage;
 import wheresoever.quickprotoserver.domain.model.Sex;
@@ -44,13 +45,7 @@ public class MemberService {
 
     @Transactional
     public void updateMember(Long memberId, Sex sex, String nickname, LocalDate birthdate, String metropolitan) {
-        Optional<Member> optionalMember = memberRepository.findById(memberId);
-        if (optionalMember.isEmpty()) {
-            throw new MemberNotFoundException();
-        }
-
-        Member member = optionalMember.get();
-
+        Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
         if (sex != null) {
             member.setSex(sex);
         }
@@ -66,6 +61,11 @@ public class MemberService {
         if (!metropolitan.isEmpty()) {
             member.setMetropolitan(metropolitan);
         }
+    }
+
+    public Member validateMemberLogin(String email, String password) {
+        return memberRepository.findByEmailAndPasswordAndCanceledAtNull(email, password)
+                .orElseThrow(MemberLoginFailException::new);
     }
 
     private Boolean isDuplicatedEmail(String username) {

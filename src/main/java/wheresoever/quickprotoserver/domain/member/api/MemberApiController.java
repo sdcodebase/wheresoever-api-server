@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import wheresoever.quickprotoserver.domain.member.application.MemberService;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
-import wheresoever.quickprotoserver.domain.member.exception.MemberLoginFailException;
+import wheresoever.quickprotoserver.domain.member.dto.request.LoginMemberRequest;
 import wheresoever.quickprotoserver.domain.member.exception.MemberNotFoundException;
 import wheresoever.quickprotoserver.domain.model.Sex;
 import wheresoever.quickprotoserver.global.argumeentresolver.Session;
@@ -17,7 +17,6 @@ import wheresoever.quickprotoserver.global.constant.SessionConst;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -31,17 +30,9 @@ public class MemberApiController {
 
     private final MemberService memberService;
 
-    /**
-     * TODO
-     * -  로그인 실패시 throw Exception
-     */
     @PostMapping("/login")
     public CreateMemberResponse<String> login(@Valid @RequestBody LoginMemberRequest loginRequest, HttpServletRequest request) {
-//        Member member = memberService.findMemberByEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword());
-        Member member = null; // 추후 변경
-        if (member == null) {
-            throw new MemberLoginFailException();
-        }
+        Member member = memberService.validateMemberLogin(loginRequest.getEmail(), loginRequest.getPassword());
 
         HttpSession prevSession = request.getSession(false);
 
@@ -61,15 +52,6 @@ public class MemberApiController {
         return new CreateMemberResponse<>(sessionId);
     }
 
-    @Data
-    @NoArgsConstructor
-    static class LoginMemberRequest {
-        @NotBlank
-        private String email;
-
-        @NotBlank
-        private String password;
-    }
 
     @PostMapping
     public CreateMemberResponse<String> signUp(@RequestBody CreateMemberRequest createRequest, HttpServletRequest request) {

@@ -10,6 +10,7 @@ import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
 import wheresoever.quickprotoserver.domain.member.dto.SearchMemberDto;
 import wheresoever.quickprotoserver.domain.member.exception.MemberEmailPreviousExistsException;
+import wheresoever.quickprotoserver.domain.member.exception.MemberLoginFailException;
 import wheresoever.quickprotoserver.domain.member.exception.MemberNotFoundException;
 import wheresoever.quickprotoserver.domain.model.Sex;
 import wheresoever.quickprotoserver.domain.randommessage.dao.RandomMessageRepository;
@@ -116,6 +117,18 @@ class MemberServiceTest {
         assertThat(member.getBirthdate()).isEqualTo("2014-10-29");
         assertThat(member.getMetropolitan()).isEqualTo("전남");
     }
+
+    @Test
+    void 로그인_실패() {
+        given(memberRepository.findByEmailAndPasswordAndCanceledAtNull(anyString(), anyString()))
+                .willThrow(MemberLoginFailException.class);
+
+        assertThatThrownBy(()->{
+            memberService.validateMemberLogin("sdk@gmail.com", "231");
+        }).isInstanceOf(MemberLoginFailException.class);
+
+    }
+
 
     @Test
     void 멤버_검색_특정_점수보다_크거나_같을때() {
