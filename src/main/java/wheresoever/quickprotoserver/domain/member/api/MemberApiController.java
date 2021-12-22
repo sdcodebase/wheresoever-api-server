@@ -1,14 +1,17 @@
 package wheresoever.quickprotoserver.domain.member.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wheresoever.quickprotoserver.domain.member.application.MemberService;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
+import wheresoever.quickprotoserver.domain.member.dto.request.CreateMemberRequest;
 import wheresoever.quickprotoserver.domain.member.dto.request.LoginMemberRequest;
+import wheresoever.quickprotoserver.domain.member.dto.request.UpdateMemberRequest;
+import wheresoever.quickprotoserver.domain.member.dto.response.CreateMemberResponse;
+import wheresoever.quickprotoserver.domain.member.dto.response.ReadMemberResponse;
 import wheresoever.quickprotoserver.domain.member.exception.MemberNotFoundException;
 import wheresoever.quickprotoserver.domain.model.Sex;
 import wheresoever.quickprotoserver.global.argumeentresolver.Session;
@@ -31,7 +34,7 @@ public class MemberApiController {
     private final MemberService memberService;
 
     @PostMapping("/login")
-    public CreateMemberResponse<String> login(@Valid @RequestBody LoginMemberRequest loginRequest, HttpServletRequest request) {
+    public ResponseEntity<CreateMemberResponse> login(@Valid @RequestBody LoginMemberRequest loginRequest, HttpServletRequest request) {
         Member member = memberService.validateMemberLogin(loginRequest.getEmail(), loginRequest.getPassword());
 
         HttpSession prevSession = request.getSession(false);
@@ -49,13 +52,11 @@ public class MemberApiController {
         String sessionId = newSession.getId();
         log.info("Issue session: {}", sessionId);
 
-        return new CreateMemberResponse<>(sessionId);
+        return new ResponseEntity<>(new CreateMemberResponse<>(sessionId), HttpStatus.OK);
     }
 
-
     @PostMapping
-    public CreateMemberResponse<String> signUp(@RequestBody CreateMemberRequest createRequest, HttpServletRequest request) {
-
+    public ResponseEntity<CreateMemberResponse> signUp(@RequestBody @Valid CreateMemberRequest createRequest, HttpServletRequest request) {
         Member member = new Member(createRequest.getEmail(),
                 createRequest.getPassword(),
                 formatSex(createRequest.getSex()),
@@ -77,45 +78,19 @@ public class MemberApiController {
 
         log.info("Issue session: {}", newSession.getId());
 
-        return new CreateMemberResponse<>(newSession.getId());
-    }
-
-    @Data
-    @NoArgsConstructor
-    static class CreateMemberRequest {
-        private String email;
-        private String password;
-        private String sex;
-        private String birthdate;
-        private String nickname;
-        private String metropolitan;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class CreateMemberResponse<T> {
-        private T token;
+        return new ResponseEntity<>(new CreateMemberResponse<>(newSession.getId()), HttpStatus.CREATED);
     }
 
     @GetMapping("/{memberId}")
-    public ReadMemberResponse readMember(@PathVariable Long memberId) {
+    public ResponseEntity<ReadMemberResponse> readMember(@PathVariable Long memberId) {
         Member member = memberService.findMember(memberId);
 
-        return new ReadMemberResponse(
-                formatSex(member.getSex()),
-                member.getNickname(),
-                formatLocalDate(member.getBirthdate()),
-                member.getMetropolitan()
-        );
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class ReadMemberResponse {
-        private String sex;
-        private String nickname;
-        private String birthdate;
-        private String metropolitan;
+        return new ResponseEntity<>(
+                new ReadMemberResponse(formatSex(member.getSex()),
+                        member.getNickname(),
+                        formatLocalDate(member.getBirthdate()),
+                        member.getMetropolitan()),
+                HttpStatus.OK);
     }
 
     /**
@@ -123,8 +98,8 @@ public class MemberApiController {
      * sessionMemberId != memberId인 경우 throw Exception --> 공통처리로직 고안 (AOP, Interceptor, resolver...)
      */
     @PatchMapping("/{memberId}")
-    public UpdateMemberResponse<Boolean> updateMember(@Session Long sessionMemberId, @PathVariable Long memberId
-            , @RequestBody UpdateMemberRequest request) {
+    public ResponseEntity updateMember(@Session Long sessionMemberId, @PathVariable Long memberId
+            , @RequestBody @Valid UpdateMemberRequest request) {
 
         if (!sessionMemberId.equals(memberId)) {
             log.error("mismatch session[{}] and pathParams[{}]", sessionMemberId, memberId);
@@ -137,28 +112,7 @@ public class MemberApiController {
                 formatLocalDate(request.getBirthdate()),
                 request.getMetropolitan());
 
-        return new UpdateMemberResponse<>(true);
-    }
-
-    @Data
-    @NoArgsConstructor
-    static class UpdateMemberRequest {
-        private String sex;
-        private String nickname;
-        private String birthdate;
-        private String metropolitan;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class UpdateMemberResponse<T> {
-        private T ok;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class DeleteMemberResponse<T> {
-        private T ok;
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     public Sex formatSex(String sex) {
@@ -169,6 +123,9 @@ public class MemberApiController {
     }
 
     public String formatSex(Sex sex) {
+        if (sex == null) {
+            return null;
+        }
         Map<Sex, String> sexMap = new HashMap<>();
         sexMap.put(Sex.FEMALE, "여성");
         sexMap.put(Sex.MALE, "남성");
@@ -176,6 +133,9 @@ public class MemberApiController {
     }
 
     public LocalDate formatLocalDate(String birthdate) {
+        if (birthdate == null) {
+            return null;
+        }
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         return LocalDate.parse(birthdate, dateTimeFormatter);
     }
