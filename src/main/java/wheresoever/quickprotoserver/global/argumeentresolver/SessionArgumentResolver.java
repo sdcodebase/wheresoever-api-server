@@ -29,7 +29,7 @@ public class SessionArgumentResolver implements HandlerMethodArgumentResolver {
         HttpSession session = httpRequest.getSession(false);
 
         String authToken = httpRequest.getHeader(HeaderConst.authHeader);
-        if (session == null) {
+        if (session == null || authToken == null) {
             if (authToken == null) {
                 log.error("{} is null", HeaderConst.authHeader);
             } else {
