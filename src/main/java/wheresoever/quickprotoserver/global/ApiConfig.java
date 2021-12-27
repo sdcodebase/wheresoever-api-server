@@ -22,7 +22,6 @@ public class ApiConfig implements WebMvcConfigurer {
 
     /**
      * Cookie에 있는 SESSION을 이용하는 방식에서 Header에 있는 X-Auth-Token으로 변경
-     *
      * HttpSessionIdResolver 역할
      * 1. X-Auth-Token이라는 HTTP Header안에 있는 토큰으로 sessionId를 찾는다
      * 2. 토큰 발급할 때, 헤더에 토큰을 준다.

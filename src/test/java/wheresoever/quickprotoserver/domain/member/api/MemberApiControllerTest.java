@@ -39,7 +39,6 @@ class MemberApiControllerTest {
     @MockBean
     private MemberService memberService;
 
-    @Autowired
     private MockMvc mvc;
 
     @Autowired

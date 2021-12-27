@@ -6,6 +6,6 @@ import wheresoever.quickprotoserver.global.error.exception.InvalidValueException
 
 public class AlreadyLikedPostException extends InvalidValueException {
     public AlreadyLikedPostException() {
-        super(ErrorInfo.PREV_POST_LIKED, ErrorMessageMapper.PREV_SENT_MESSAGE.getValue());
+        super(ErrorInfo.PREV_POST_LIKED, ErrorMessageMapper.PREV_POST_LIKED.getValue());
     }
 }
