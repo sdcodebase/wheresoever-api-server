@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
-import wheresoever.quickprotoserver.domain.randommessage.PrevSentMessageExistException;
+import wheresoever.quickprotoserver.domain.randommessage.exception.PrevSentMessageExistException;
 import wheresoever.quickprotoserver.domain.randommessage.dao.RandomMessageRepository;
 import wheresoever.quickprotoserver.domain.randommessage.domain.RandomMessage;
 

@@ -1,4 +1,4 @@
-package wheresoever.quickprotoserver.domain.randommessage;
+package wheresoever.quickprotoserver.domain.randommessage.exception;
 
 import wheresoever.quickprotoserver.global.constant.ErrorMessageMapper;
 import wheresoever.quickprotoserver.global.error.exception.ErrorInfo;

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
 import wheresoever.quickprotoserver.domain.member.exception.MemberNotFoundException;
-import wheresoever.quickprotoserver.domain.randommessage.PrevSentMessageExistException;
+import wheresoever.quickprotoserver.domain.randommessage.exception.PrevSentMessageExistException;
 import wheresoever.quickprotoserver.domain.randommessage.domain.RandomMessage;
 import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
 import wheresoever.quickprotoserver.domain.randommessage.dao.RandomMessageRepository;

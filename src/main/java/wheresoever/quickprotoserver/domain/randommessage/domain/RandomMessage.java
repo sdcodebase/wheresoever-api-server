@@ -34,7 +34,7 @@ public class RandomMessage {
 
     private LocalDateTime at;
 
-    private int grade;
+    private Integer grade;
 
     /*생성 메서드*/
     public RandomMessage(Member sender, Member receiver, String content) {
