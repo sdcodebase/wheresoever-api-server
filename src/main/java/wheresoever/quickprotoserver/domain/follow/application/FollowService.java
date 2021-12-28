@@ -3,14 +3,13 @@ package wheresoever.quickprotoserver.domain.follow.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import wheresoever.quickprotoserver.domain.follow.AlreadyFollowedException;
+import wheresoever.quickprotoserver.domain.follow.exception.AlreadyFollowedException;
 import wheresoever.quickprotoserver.domain.follow.domain.Follow;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
 import wheresoever.quickprotoserver.domain.follow.dao.FollowRepository;
 import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service

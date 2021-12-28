@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import wheresoever.quickprotoserver.domain.follow.AlreadyFollowedException;
+import wheresoever.quickprotoserver.domain.follow.exception.AlreadyFollowedException;
 import wheresoever.quickprotoserver.domain.follow.dao.FollowRepository;
 import wheresoever.quickprotoserver.domain.follow.domain.Follow;
 import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;

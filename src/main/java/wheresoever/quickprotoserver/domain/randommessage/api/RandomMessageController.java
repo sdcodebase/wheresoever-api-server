@@ -59,7 +59,7 @@ public class RandomMessageController {
 
     @PostMapping("/grade")
     public ResponseEntity gradeToSender(@Session Long receiverId, @RequestBody Map<String, String> json) {
-        Long messageId = Long.getLong(json.get("messageId"));
+        Long messageId = Long.parseLong(json.get("messageId"));
         Integer grade = Integer.parseInt(json.get("grade"));
 
         randomMessageService.evaluateMember(receiverId, messageId, grade);

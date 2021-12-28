@@ -1,4 +1,4 @@
-package wheresoever.quickprotoserver.domain.follow;
+package wheresoever.quickprotoserver.domain.follow.exception;
 
 import wheresoever.quickprotoserver.global.constant.ErrorMessageMapper;
 import wheresoever.quickprotoserver.global.error.exception.ErrorInfo;
