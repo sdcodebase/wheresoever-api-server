@@ -3,11 +3,12 @@ package wheresoever.quickprotoserver.domain.follow.dao;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import wheresoever.quickprotoserver.domain.follow.domain.Follow;
-import wheresoever.quickprotoserver._domain.QFollow;
+import wheresoever.quickprotoserver.domain.follow.domain.QFollow;
 
 import javax.persistence.EntityManager;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class FollowRepositoryCustomImpl implements FollowRepositoryCustom {
 
@@ -40,11 +41,13 @@ public class FollowRepositoryCustomImpl implements FollowRepositoryCustom {
     }
 
     @Override
-    public Follow getFollowByMemberIdAndFollowerId(Long memberId, Long followerId) {
-        return queryFactory
-                .selectFrom(follow)
-                .where(follow.follower.id.eq(followerId), follow.member.id.eq(memberId))
-                .fetchOne();
+    public Optional<Follow> getFollowByMemberIdAndFollowerId(Long memberId, Long followerId) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(follow)
+                        .where(follow.follower.id.eq(followerId), follow.member.id.eq(memberId))
+                        .fetchOne()
+        );
     }
 
     @Override

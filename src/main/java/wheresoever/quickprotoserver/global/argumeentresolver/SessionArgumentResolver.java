@@ -6,6 +6,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import wheresoever.quickprotoserver.global.constant.HeaderConst;
 import wheresoever.quickprotoserver.global.constant.SessionConst;
 import wheresoever.quickprotoserver.global.error.exception.SessionNotFoundException;
 
@@ -27,20 +28,18 @@ public class SessionArgumentResolver implements HandlerMethodArgumentResolver {
         HttpServletRequest httpRequest = (HttpServletRequest) webRequest.getNativeRequest();
         HttpSession session = httpRequest.getSession(false);
 
-        Optional<Cookie> sessionCookie = Arrays.stream(httpRequest.getCookies()).filter(cookie -> cookie.getName().equals("SESSION")).findFirst();
-        boolean isPresentSessionCookie = sessionCookie.isPresent();
-
-        if (session == null) {
-            if (isPresentSessionCookie) {
-                log.error("session: {} is invalid", sessionCookie.get().getValue());
+        String authToken = httpRequest.getHeader(HeaderConst.authHeader);
+        if (session == null || authToken == null) {
+            if (authToken == null) {
+                log.error("{} is null", HeaderConst.authHeader);
             } else {
-                log.error("Session Cookies is not exists");
+                log.error("{}[{}] is invalid token", HeaderConst.authHeader, authToken);
             }
             throw new SessionNotFoundException();
         }
 
         Long memberId = (Long) session.getAttribute(SessionConst.SESSION_MEMBER_ID);
-        log.info("session: {} --> memberId: {}", sessionCookie.get().getValue(), memberId);
+        log.info("{}:[{}] --> memberId: [{}]", HeaderConst.authHeader, authToken, memberId);
 
         return memberId;
     }

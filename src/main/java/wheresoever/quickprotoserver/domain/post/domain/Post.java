@@ -1,8 +1,6 @@
 package wheresoever.quickprotoserver.domain.post.domain;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import wheresoever.quickprotoserver.domain.postlike.domain.PostLike;
 import wheresoever.quickprotoserver.domain.comment.domain.Comment;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
@@ -16,7 +14,9 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "posts")
+@Builder
 public class Post {
 
     @Id

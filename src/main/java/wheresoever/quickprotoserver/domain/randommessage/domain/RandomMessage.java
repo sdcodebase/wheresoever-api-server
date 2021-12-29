@@ -1,8 +1,6 @@
 package wheresoever.quickprotoserver.domain.randommessage.domain;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
 
 import javax.persistence.*;
@@ -11,7 +9,9 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "random_messages")
+@Builder
 public class RandomMessage {
 
     @Id
@@ -34,7 +34,7 @@ public class RandomMessage {
 
     private LocalDateTime at;
 
-    private int grade;
+    private Integer grade;
 
     /*생성 메서드*/
     public RandomMessage(Member sender, Member receiver, String content) {
@@ -42,6 +42,10 @@ public class RandomMessage {
         this.receiver = receiver;
         this.content = content;
         this.at = LocalDateTime.now();
+    }
+
+    public void delete() {
+        this.canceledAt = LocalDateTime.now();
     }
 
     public void grading(int grade) {

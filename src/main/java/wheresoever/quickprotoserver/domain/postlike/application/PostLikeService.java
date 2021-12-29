@@ -9,6 +9,9 @@ import wheresoever.quickprotoserver.domain.postlike.domain.PostLike;
 import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
 import wheresoever.quickprotoserver.domain.post.dao.PostRepository;
 import wheresoever.quickprotoserver.domain.postlike.dao.PostLikeRepository;
+import wheresoever.quickprotoserver.domain.postlike.exception.AlreadyLikedPostException;
+import wheresoever.quickprotoserver.global.error.exception.EntityNotFoundException;
+import wheresoever.quickprotoserver.global.error.exception.InvalidValueException;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,9 +36,8 @@ public class PostLikeService {
                 .orElse(null);
 
         if (Objects.nonNull(postLike)) {
-            throw new IllegalStateException("이미 좋아요를 했습니다");
+            throw new AlreadyLikedPostException();
         }
-
         Post post = postRepository.findById(postId).get();
         Member member = memberRepository.findById(memberId).get();
 
@@ -51,12 +53,12 @@ public class PostLikeService {
         Optional<PostLike> optional = postLikeRepository.findByMemberIdAndPostId(memberId, postId);
 
         if (optional.isEmpty()) {
-            throw new IllegalStateException("좋아요 한 적 없습니다.");
+            throw new EntityNotFoundException("좋아요 한 적 없습니다.");
         }
 
         PostLike like = optional.get();
         if (Objects.nonNull(like.getCanceledAt())) {
-            throw new IllegalStateException("이미 좋아요를 취소했습니다");
+            throw new InvalidValueException("이미 좋아요를 취소했습니다");
         }
 
         like.unlike();
@@ -66,4 +68,7 @@ public class PostLikeService {
         return postLikeRepository.getLikes(postId);
     }
 
+    public Integer getLikeCountOfPost(Long postId) {
+        return postLikeRepository.countByPostIdAndCanceledAtIsNotNull(postId);
+    }
 }

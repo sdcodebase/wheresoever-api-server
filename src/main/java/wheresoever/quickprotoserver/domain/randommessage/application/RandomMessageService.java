@@ -5,12 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
+import wheresoever.quickprotoserver.domain.member.exception.MemberNotFoundException;
+import wheresoever.quickprotoserver.domain.randommessage.exception.PrevSentMessageExistException;
 import wheresoever.quickprotoserver.domain.randommessage.domain.RandomMessage;
 import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
 import wheresoever.quickprotoserver.domain.randommessage.dao.RandomMessageRepository;
+import wheresoever.quickprotoserver.global.error.exception.InvalidValueException;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,16 +27,19 @@ public class RandomMessageService {
     @Transactional
     // todo: receiverId를 랜덤하게 하도록 바꾸기(매칭 알고리즘 고안)
     public Long send(Long receiverId, Long senderId, String content) {
-        RandomMessage prevMessage = randomMessageRepository.getMessageByReceiverIdAndSenderId(receiverId, senderId);
-        if (Objects.nonNull(prevMessage)) {
-            String msg = "이미 메시지를 보낸 기록이 있습니다.";
-            log.info(msg);
-            throw new IllegalStateException(msg);
+        Optional<RandomMessage> prevMessage = randomMessageRepository.getMessageByReceiverIdAndSenderId(receiverId, senderId);
+        if (prevMessage.isPresent()) {
+            throw new PrevSentMessageExistException();
         }
 
-        Member sender = memberRepository.findById(senderId).get();
-        Member receiver = memberRepository.findById(receiverId).get();
+        Optional<Member> optionalSender = memberRepository.findById(senderId);
+        Optional<Member> optionalReceiver = memberRepository.findById(receiverId);
+        if (optionalSender.isEmpty() || optionalReceiver.isEmpty()) {
+            throw new MemberNotFoundException();
+        }
 
+        Member sender = optionalSender.get();
+        Member receiver = optionalReceiver.get();
         RandomMessage message = new RandomMessage(sender, receiver, content);
 
         return randomMessageRepository.save(message).getId();
@@ -51,7 +57,7 @@ public class RandomMessageService {
     public void evaluateMember(Long memberId, Long messageId, int grade) {
         RandomMessage message = randomMessageRepository.findById(messageId).get();
         if (!message.getReceiver().getId().equals(memberId)) {
-            throw new IllegalStateException("권한이 없습니다.");
+            throw new InvalidValueException();
         }
 
         message.grading(grade);

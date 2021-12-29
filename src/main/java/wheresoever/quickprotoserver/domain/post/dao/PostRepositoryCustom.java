@@ -6,7 +6,5 @@ import wheresoever.quickprotoserver.domain.post.domain.Post;
 
 public interface PostRepositoryCustom {
 
-    Post getPostDetail(Long postId);
-
     Page<Post> getPostList(Pageable pageable, Long memberId);
 }

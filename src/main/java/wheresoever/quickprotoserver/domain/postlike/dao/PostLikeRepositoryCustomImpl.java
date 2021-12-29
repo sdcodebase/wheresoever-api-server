@@ -2,7 +2,7 @@ package wheresoever.quickprotoserver.domain.postlike.dao;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import wheresoever.quickprotoserver.domain.postlike.domain.PostLike;
-import wheresoever.quickprotoserver._domain.QPostLike;
+import wheresoever.quickprotoserver.domain.postlike.domain.QPostLike;
 
 import javax.persistence.EntityManager;
 import java.util.List;
