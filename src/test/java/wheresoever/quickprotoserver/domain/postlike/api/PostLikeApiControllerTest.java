@@ -24,6 +24,7 @@ import wheresoever.quickprotoserver.global.constant.HeaderConst;
 import wheresoever.quickprotoserver.global.constant.SessionConst;
 import wheresoever.quickprotoserver.global.error.exception.ErrorInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -90,6 +91,7 @@ class PostLikeApiControllerTest {
 
         Post post = Post.builder()
                 .id(1L)
+                .likes(new ArrayList<>())
                 .build();
 
         Member member = Member.builder()

@@ -16,6 +16,7 @@ import wheresoever.quickprotoserver.global.error.exception.EntityNotFoundExcepti
 import wheresoever.quickprotoserver.global.error.exception.InvalidValueException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,6 +50,7 @@ class PostLikeServiceTest {
                 .build();
 
         Post post = Post.builder()
+                .likes(new ArrayList<>())
                 .id(2L)
                 .build();
 
@@ -136,7 +138,7 @@ class PostLikeServiceTest {
     void 글_좋아요_안했는데_좋아요_취소() {
         //given
         given(postLikeRepository.findByMemberIdAndPostId(anyLong(), anyLong()))
-                .willReturn(Optional.ofNullable(null));
+                .willReturn(Optional.empty());
 
         //then
         assertThatThrownBy(() -> {

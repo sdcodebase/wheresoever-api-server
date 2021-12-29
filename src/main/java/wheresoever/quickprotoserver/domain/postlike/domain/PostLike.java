@@ -36,6 +36,7 @@ public class PostLike {
     /* 생성 매서드 */
     public PostLike(Post post, Member member) {
         this.post = post;
+        this.post.getLikes().add(this);
         this.member = member;
         this.at = LocalDateTime.now();
     }

@@ -95,7 +95,7 @@ class CommentApiControllerTest {
 
         Comment comment2 = Comment.builder()
                 .id(3L)
-                .content("1번댓글")
+                .content("2번댓글")
                 .member(member)
                 .at(LocalDateTime.now())
                 .build();
@@ -107,7 +107,8 @@ class CommentApiControllerTest {
         mvc.perform(
                 MockMvcRequestBuilders.get("/api/1/comments")
         )
-                .andExpect(jsonPath("$.comments").isArray());
+                .andExpect(jsonPath("$.comments").isArray())
+                .andExpect(jsonPath("$.comments.length()").value(2));
 
     }
 }

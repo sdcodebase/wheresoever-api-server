@@ -6,10 +6,14 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import wheresoever.quickprotoserver.domain.comment.dao.CommentRepository;
+import wheresoever.quickprotoserver.domain.comment.domain.Comment;
 import wheresoever.quickprotoserver.domain.member.dao.MemberRepository;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
 import wheresoever.quickprotoserver.domain.model.Category;
 import wheresoever.quickprotoserver.domain.post.domain.Post;
+import wheresoever.quickprotoserver.domain.postlike.dao.PostLikeRepository;
+import wheresoever.quickprotoserver.domain.postlike.domain.PostLike;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -25,6 +29,12 @@ class PostRepositoryTest {
 
     @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
+    private PostLikeRepository postLikeRepository;
 
     @Autowired
     EntityManager em;
@@ -44,6 +54,13 @@ class PostRepositoryTest {
         Post p4 = new Post(member, "게시글4", Category.ART);
         postRepository.saveAll(List.of(p1, p2, p3, p4));
 
+        Comment c1 = new Comment(member, p3, "댓글1");
+        Comment c2 = new Comment(member, p3, "댓글2");
+        commentRepository.saveAll(List.of(c1, c2));
+
+        PostLike postLike = new PostLike(p3, member);
+        postLikeRepository.save(postLike);
+
         em.flush();
         em.clear();
 
@@ -59,6 +76,8 @@ class PostRepositoryTest {
 
         assertThat(p4.getId()).isEqualTo(first.getId());
         assertThat(p3.getId()).isEqualTo(second.getId());
+        assertThat(p3.getComments().size()).isEqualTo(2);
+        assertThat(p3.getLikes().size()).isEqualTo(1);
         assertThat(postPage.getTotalElements()).isEqualTo(4L);
         assertThat(postPage.getSize()).isEqualTo(2);
         assertThat(postPage.hasNext()).isTrue();
