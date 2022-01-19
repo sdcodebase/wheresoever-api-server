@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import wheresoever.quickprotoserver.domain.randommessage.application.RandomMessageService;
 import wheresoever.quickprotoserver.domain.randommessage.dto.request.SendRmRequest;
@@ -24,7 +25,7 @@ public class RandomMessageController {
     private final RandomMessageService randomMessageService;
 
     @PostMapping
-    public ResponseEntity<Object> sendMessage(@Session Long memberId, @RequestBody SendRmRequest request) {
+    public ResponseEntity<Object> sendMessage(@Session Long memberId, @RequestBody @Validated SendRmRequest request) {
         Long messageId = randomMessageService.send(Long.parseLong(request.getReceiverId()), memberId, request.getContent());
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of(

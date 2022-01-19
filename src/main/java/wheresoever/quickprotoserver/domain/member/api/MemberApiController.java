@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import wheresoever.quickprotoserver.domain.member.application.MemberService;
 import wheresoever.quickprotoserver.domain.member.domain.Member;
@@ -34,7 +35,7 @@ public class MemberApiController {
     private final MemberService memberService;
 
     @PostMapping("/login")
-    public ResponseEntity<CreateMemberResponse> login(@Valid @RequestBody LoginMemberRequest loginRequest, HttpServletRequest request) {
+    public ResponseEntity<CreateMemberResponse> login(@Validated @RequestBody LoginMemberRequest loginRequest, HttpServletRequest request) {
         Member member = memberService.validateMemberLogin(loginRequest.getEmail(), loginRequest.getPassword());
 
         HttpSession prevSession = request.getSession(false);
@@ -56,7 +57,7 @@ public class MemberApiController {
     }
 
     @PostMapping
-    public ResponseEntity<CreateMemberResponse> signUp(@RequestBody @Valid CreateMemberRequest createRequest, HttpServletRequest request) {
+    public ResponseEntity<CreateMemberResponse> signUp(@RequestBody @Validated CreateMemberRequest createRequest, HttpServletRequest request) {
         Member member = new Member(createRequest.getEmail(),
                 createRequest.getPassword(),
                 formatSex(createRequest.getSex()),

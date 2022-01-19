@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import wheresoever.quickprotoserver.domain.model.Category;
 import wheresoever.quickprotoserver.domain.post.application.PostService;
@@ -32,7 +33,7 @@ public class PostApiController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createPosts(@Session Long memberId, @RequestBody CreatePostRequest request) {
+    public ResponseEntity<Object> createPosts(@Session Long memberId, @RequestBody @Validated CreatePostRequest request) {
         Category category = formatCategory(request.getCategory());
 
         Long postId = postService.posts(memberId, request.getContent(), category);

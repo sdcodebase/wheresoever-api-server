@@ -132,6 +132,20 @@ class MemberApiControllerTest {
     }
 
     @Test
+    void 로그인_validation_실패() throws Exception {
+        LoginMemberRequest request = LoginMemberRequest.builder()
+                .email("sdkim@gmail.com")
+//                .password("dafsd")
+                .build();
+
+        mvc.perform(
+                MockMvcRequestBuilders.post("/api/members/login")
+                        .content(mapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(jsonPath("$.code").value(ErrorInfo.BAD_REQUEST.getCode()));
+    }
+
+    @Test
     /**
      * TODO: RedisHttpSession을 이용해서 테스트
      */
